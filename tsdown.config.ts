@@ -2,7 +2,7 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig([
 	{
-		entry: ["src/**/*.ts"],
+		entry: ["src/**/*.{ts,tsx}", "!src/**/*.test.{ts,tsx}"],
 		outDir: "dist",
 		dts: true,
 		platform: "node",
