@@ -1,9 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/denoland/deno/refs/heads/main/cli/schemas/config-file.v1.json",
-  "name": "@workspace/lqx",
-  "version": "0.0.0",
-  "exports": {
-    "./jsx-runtime": "./jsx-runtime.ts",
-    "./tags/conditional": "./tags/conditional/index.ts"
-  }
-}
