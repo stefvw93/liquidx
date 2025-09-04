@@ -86,7 +86,7 @@ export function Form({
 	children,
 	return_to,
 	...attributes
-}: FormBaseProps & { type: FormType; param?: string }) {
+}: FormBaseProps & { type: FormType; param?: FormParam }) {
 	let tag = `form '${type}'`;
 
 	if (param) {
