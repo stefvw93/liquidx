@@ -13,7 +13,7 @@
 	},
 	"scripts": {
 		"test": "node --import tsx --test ./**/*.test.{ts,tsx}",
-		"test:watch": "node --import tsx --test --watch ./**/*.test.{ts,tsx}",
+		"dev": "node --import tsx --test --watch ./**/*.test.{ts,tsx}",
 		"build": "tsdown"
 	},
 	"repository": {
