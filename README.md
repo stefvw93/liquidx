@@ -1,8 +1,14 @@
 # LiquidX
 
-**LiquidX** is a JSX-to-Liquid transpiler for Shopify theme development. It lets you write Liquid templates using JSX syntax, making the templating experience more familiar to React developers.
+**LiquidX** is a JSX-to-Liquid transpiler for Shopify theme development. It provides a better developer experience by replacing Liquid's error-prone syntax with type-safe JSX components.
 
-The project converts JSX components into Shopify Liquid tags, allowing you to leverage the full Liquid API with type-safe, component-based syntax. It validates the generated Liquid using Shopify's theme-check tool to ensure compatibility with Shopify themes.
+The project compiles JSX components into Shopify Liquid code, eliminating the finicky bracket-and-percent syntax while enabling better tooling support and progressive enhancement patterns. 
+
+
+## Tests
+LiquidX is tested with Shopify CLI to ensure compatibility with Shopify themes.
+
+It validates the generated Liquid using Shopify's theme-check tool to ensure compatibility with Shopify themes.
 
 ## Key Features
 
@@ -10,12 +16,6 @@ The project converts JSX components into Shopify Liquid tags, allowing you to le
 - Type-safe components for the full Liquid API surface
 - Automatic validation using Shopify theme-check
 - Custom JSX runtime that outputs Liquid template strings instead of HTML
-
-## Installation
-
-```bash
-pnpm install liquidx
-```
 
 ## Requirements
 
