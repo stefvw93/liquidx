@@ -10,13 +10,6 @@ LiquidX is tested with Shopify CLI to ensure compatibility with Shopify themes.
 
 It validates the generated Liquid using Shopify's theme-check tool to ensure compatibility with Shopify themes.
 
-## Key Features
-
-- Write Liquid templates with JSX syntax
-- Type-safe components for the full Liquid API surface
-- Automatic validation using Shopify theme-check
-- Custom JSX runtime that outputs Liquid template strings instead of HTML
-
 ## Requirements
 
 - Node.js >= 24
