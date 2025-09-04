@@ -1,4 +1,4 @@
-import type { JSXChildNode, PropsWithChildren } from "../jsx-runtime";
+import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 
 /**
  * Renders an expression for every item in an array.

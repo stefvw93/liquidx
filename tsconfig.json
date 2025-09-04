@@ -8,7 +8,12 @@
 		"target": "esnext",
 		"lib": ["esnext"],
 		"types": ["node"],
+
 		"noEmit": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"~/*": ["./*"]
+		},
 
 		"jsx": "react-jsx",
 		"jsxImportSource": "dist",

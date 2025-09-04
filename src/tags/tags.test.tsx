@@ -1,7 +1,7 @@
-/** @jsxImportSource ../dist */
+/** @jsxImportSource ~/dist */
 
 import { before, describe, test } from "node:test";
-import { checkLiquidString, setupTheme } from "../test-utils/theme-setup";
+import { checkLiquidString, setupTheme } from "~/test-utils/theme-setup";
 import { Case, Else, Elsif, If, Unless, When } from "./conditional";
 import { Break, Continue, Cycle, For, Paginate } from "./iteration";
 

@@ -3,7 +3,7 @@ import { defineConfig } from "tsdown";
 export default defineConfig({
 	entry: [
 		"jsx-runtime/index.ts",
-		"tags/**/*.ts",
+		"src/**/*.ts",
 		"!**/*.test.{ts,tsx}",
 		"!test-utils/**/*.ts",
 	],

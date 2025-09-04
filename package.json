@@ -12,8 +12,8 @@
 		"example": "example"
 	},
 	"scripts": {
-		"test": "node --import tsx --test ./**/*.test.{ts,tsx}",
-		"dev": "node --import tsx --test --watch ./**/*.test.{ts,tsx}",
+		"test": "node --import tsx --test src/**/*.test.{ts,tsx}",
+		"dev": "node --import tsx --test --watch src/**/*.test.{ts,tsx}",
 		"build": "tsdown"
 	},
 	"repository": {

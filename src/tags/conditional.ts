@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "../jsx-runtime";
+import type { PropsWithChildren } from "~/jsx-runtime";
 
 /**
  * Renders a specific expression depending on the value of a specific variable.
