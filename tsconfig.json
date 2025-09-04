@@ -1,6 +1,6 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"exclude": ["./dist"],
+	"exclude": ["dist", "dist/**/*", "**/*.d.ts"],
 
 	"compilerOptions": {
 		"module": "esnext",
@@ -16,7 +16,7 @@
 		},
 
 		"jsx": "react-jsx",
-		"jsxImportSource": "dist",
+		"jsxImportSource": "~",
 
 		"noUncheckedIndexedAccess": true,
 		"exactOptionalPropertyTypes": true,

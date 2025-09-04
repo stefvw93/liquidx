@@ -63,7 +63,7 @@ export async function setupTheme(): Promise<string> {
  */
 export async function checkLiquidString(
 	liquid: string,
-	filename = `inline-${Date.now()}.liquid`,
+	filename = `inline-${crypto.randomUUID()}.liquid`,
 	directory = "snippets",
 ): Promise<string> {
 	const themeRoot = await setupTheme();
