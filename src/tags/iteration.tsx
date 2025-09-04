@@ -1,3 +1,4 @@
+/** @jsxImportSource ~/dist */
 import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 
 /**
@@ -7,7 +8,6 @@ import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
  * @param variable - The variable to iterate over.
  * @param array - The array to iterate over.
  */
-
 export function For<
 	ArrayType extends string,
 	VariableType extends string = "array_item",
@@ -90,4 +90,32 @@ export function Paginate<ArrayType extends string>({
 			: normalizedChildren;
 
 	return `{% paginate ${array} by ${by} %}${renderedChildren ?? ""}{% endpaginate %}`;
+}
+
+/**
+ * Generates HTML table rows for every item in an array.
+ * The tablerow tag must be wrapped in HTML <table> and </table> tags.
+ */
+export function TableRow<
+	ArrayType extends string,
+	VariableType extends string = "row_item",
+>({
+	array,
+	variable,
+	children,
+}: {
+	variable?: VariableType;
+	array: ArrayType;
+	children?:
+		| JSXChildNode
+		| ((variable: VariableType, array: ArrayType) => JSXChildNode);
+}) {
+	const normalizedChildren = [children].flat();
+	const safeVariable = (variable || "row_item") as VariableType;
+	const renderedChildren =
+		normalizedChildren[0] instanceof Function
+			? normalizedChildren[0](safeVariable, array)
+			: normalizedChildren;
+
+	return `{% tablerow ${safeVariable} in ${array} %}${renderedChildren ?? ""}{% endtablerow %}`;
 }

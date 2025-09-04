@@ -3,7 +3,7 @@
 import { before, describe, test } from "node:test";
 import { checkLiquidString, setupTheme } from "~/test-utils/theme-setup";
 import { Case, Else, Elsif, If, Unless, When } from "./conditional";
-import { Break, Continue, Cycle, For, Paginate } from "./iteration";
+import { Break, Continue, Cycle, For, Paginate, TableRow } from "./iteration";
 
 describe("Tags", () => {
 	before(setupTheme);
@@ -108,18 +108,23 @@ describe("Tags", () => {
 		});
 
 		test("paginate", async () => {
-			const liquid = (
+			await checkLiquidString(
 				<Paginate array="collection.products" by={10}>
 					{(array) => (
 						<For array={array}>
 							{(variable, _array) => <div>{`{{ ${variable} }}`}</div>}
 						</For>
 					)}
-				</Paginate>
+				</Paginate>,
 			);
+		});
 
-			console.log(liquid);
-			await checkLiquidString(liquid);
+		test("tablerow", async () => {
+			await checkLiquidString(
+				<TableRow array="collection.products">
+					{(variable, _array) => <div>{`{{ ${variable} }}`}</div>}
+				</TableRow>,
+			);
 		});
 	});
 });
