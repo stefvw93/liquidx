@@ -2,6 +2,7 @@ import { before, describe, test } from "node:test";
 import { checkLiquidString, setupTheme } from "~/test-utils/theme-setup";
 import { Else, If } from "./conditional";
 import { Break, Continue, Cycle, For, Paginate, TableRow } from "./iteration";
+import { Echo } from "./syntax";
 
 describe("Tags/Iteration", () => {
 	before(setupTheme);
@@ -86,7 +87,11 @@ describe("Tags/Iteration", () => {
 	test("tablerow", async () => {
 		await checkLiquidString(
 			<TableRow array="collection.products">
-				{(variable, _array) => <div>{`{{ ${variable} }}`}</div>}
+				{(variable, _array) => (
+					<div>
+						<Echo>{variable}</Echo>
+					</div>
+				)}
 			</TableRow>,
 		);
 	});
