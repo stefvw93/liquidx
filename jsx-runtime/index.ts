@@ -1,6 +1,6 @@
 import type * as HTMLTypes from "html-jsx";
 
-// deno-lint-ignore no-control-regex
+// biome-ignore lint/suspicious/noControlCharactersInRegex: needed for liquid
 const ILLEGAL_ATTR_PATTERN = /[ "'>/= \u0000-\u001F\uFDD0-\uFDEF\uFFFF\uFFFE]/;
 
 const VOID_ELEMENTS = [
@@ -22,8 +22,17 @@ const VOID_ELEMENTS = [
 	"wbr",
 ];
 
+export type JSXChildNode =
+	| string
+	| number
+	| bigint
+	| Iterable<JSXChildNode>
+	| boolean
+	| null
+	| undefined;
+
 export type PropsWithChildren<T = object> = T & {
-	children?: string | string[];
+	children?: JSXChildNode;
 };
 export type JSXGenericProps = PropsWithChildren<{ [key: string]: unknown }>;
 export type JSXTag = string | ((props: object) => string);
@@ -40,7 +49,7 @@ export function jsx(
 	}
 
 	if (tag instanceof Function) {
-		return tag({ ...props, children: renderedChildren });
+		return tag({ ...props, children: normalizedChildren });
 	}
 
 	if (typeof tag === "string") {
@@ -79,7 +88,7 @@ export function jsx(
 
 export const jsxs: typeof jsx = jsx;
 
-export function Fragment({ children }: { children: string[] }): string {
+export function Fragment({ children }: { children?: JSXChildNode }): string {
 	return jsx("FRAGMENT", { children });
 }
 
@@ -87,33 +96,22 @@ export function Fragment({ children }: { children: string[] }): string {
 declare module "html-jsx" {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	interface DOMAttributes<T> extends JSX.IntrinsicAttributes {
-		// here we could add attributes specific only to DOM elements (HTML+SVG)
+		children?: JSXChildNode;
 	}
 }
 
 // this introduces our JSX definitions into the global scope
 declare global {
 	namespace JSX {
-		/** The type returned by our `createElement` factory. */
 		type Element = string;
 
 		interface IntrinsicElements extends HTMLTypes.IntrinsicElements {
-			/** This allows for any tag to be used. */
 			[k: string]: unknown;
 		}
 
 		// here we can add attributes for all the elements
-		interface IntrinsicAttributes {
-			/** List index key - each item's `key` must be unique. */
-			key?: string | number;
-			children?: string | string[];
-		}
+		interface IntrinsicAttributes {}
 
-		/**
-		 * These are exported to the global JSX namespace to allow
-		 * declaring custom elements types.
-		 * @see `playground/app.tsx`
-		 */
 		interface HTMLAttributes<T> extends HTMLTypes.HTMLAttributes<T> {}
 		interface SVGAttributes<T> extends HTMLTypes.SVGAttributes<T> {}
 		interface DOMAttributes<T> extends HTMLTypes.DOMAttributes<T> {}

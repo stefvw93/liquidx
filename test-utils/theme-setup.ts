@@ -65,7 +65,7 @@ export async function checkLiquidString(
 	liquid: string,
 	filename = `inline-${Date.now()}.liquid`,
 	directory = "snippets",
-): Promise<true> {
+): Promise<string> {
 	const themeRoot = await setupTheme();
 	const filePath = join(themeRoot, directory, filename);
 
@@ -80,7 +80,7 @@ export async function checkLiquidString(
 		throw new Error(`${offenses[0].check}: ${offenses[0].message}`);
 	}
 
-	return true;
+	return liquid;
 }
 
 /**
