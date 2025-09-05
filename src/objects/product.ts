@@ -1,9 +1,11 @@
-export const ProductTypeId = Symbol("liquidx/objects/product");
+import { LiquidObject } from "./object";
 
-export class Product {
-	[ProductTypeId] = ProductTypeId;
+const ProductTypeId = Symbol("liquidx/objects/product");
 
-	static toString() {
-		return "product";
-	}
+export class Product extends LiquidObject {
+  [ProductTypeId] = ProductTypeId;
+
+  static toString() {
+    return "product";
+  }
 }

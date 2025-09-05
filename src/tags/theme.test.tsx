@@ -1,9 +1,17 @@
 import { describe, test } from "node:test";
 import { checkLiquidString } from "~/test-utils/theme-setup";
-import { Content, JavaScript, Layout, Render } from "./theme";
+import {
+  Content,
+  JavaScript,
+  Layout,
+  Render,
+  Section,
+  Stylesheet,
+} from "./theme";
 import { js } from "@/util/js";
 import { Echo } from "./syntax";
 import { Product } from "@/objects/product";
+import { css } from "@/util/css";
 
 describe("Tags/Theme", () => {
   test("content_for 'blocks'", async () => {
@@ -69,6 +77,24 @@ describe("Tags/Theme", () => {
           </div>
         )}
       </Render>,
+    );
+  });
+
+  test("section", async () => {
+    const name = `inline-${crypto.randomUUID()}`;
+    await checkLiquidString(<Section name={name} />);
+  });
+
+  test("stylesheet", async () => {
+    const name = `inline-${crypto.randomUUID()}`;
+    await checkLiquidString(
+      <Stylesheet>
+        {css`
+          .selector {
+            background: green;
+          }
+        `}
+      </Stylesheet>,
     );
   });
 });

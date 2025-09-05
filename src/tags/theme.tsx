@@ -36,7 +36,7 @@ export function Content({
   }
 
   for (const [key, value] of Object.entries(rest)) {
-    tag += `, ${key}: '${String(value).replace(/"/g, "&quot;")}'`;
+    tag += `, ${key}: ${value}`;
   }
 
   return `{% ${tag} %}`;
@@ -95,6 +95,7 @@ export function Render({
   variable,
   with: liquidWith,
   children,
+  ...attributes
 }: {
   filename: string;
   array?: string;
@@ -125,5 +126,35 @@ export function Render({
     }
   }
 
+  for (const [key, value] of Object.entries(attributes)) {
+    tag += `, ${key}: ${value}`;
+  }
+
   return `{% ${tag} %}`;
+}
+
+/**
+ * Renders a [section](https://shopify.dev/themes/architecture/sections).
+ * Rendering a section with the section tag renders a section statically. To learn more about sections and how to use them in your theme, refer to [Render a section](https://shopify.dev/themes/architecture/sections#render-a-section).
+ */
+export function Section({ name }: { name: string }) {
+  return `{% section ${name} %}`;
+}
+
+/**
+ * Renders a [section group](https://shopify.dev/themes/architecture/section-groups).
+ * Use this tag to render section groups as part of the theme's [layout](https://shopify.dev/themes/architecture/layouts) content. Place the sections tag where you want to render it in the layout.
+ * To learn more about section groups and how to use them in your theme, refer to [Section groups](https://shopify.dev/themes/architecture/section-groups#usage).
+ */
+export function Sections({ name }: { name: string }) {
+  return `{% sections ${name} %}`;
+}
+
+/**
+ * CSS styles included in [section](https://shopify.dev/storefronts/themes/architecture/sections), [block](https://shopify.dev/storefronts/themes/architecture/blocks), and [snippet](https://shopify.dev/storefronts/themes/architecture/snippets) files.
+ * Each section, block or snippet can have only one {% stylesheet %} tag.
+ * To learn more about how CSS that's defined between the stylesheet tags is loaded and run, refer to the documentation for [stylesheet tags](https://shopify.dev/storefronts/themes/best-practices/javascript-and-stylesheet-tags#stylesheet).
+ */
+export function Stylesheet({ children }: PropsWithChildren) {
+  return `{% stylesheet %}${children}{% endstylesheet %}`;
 }

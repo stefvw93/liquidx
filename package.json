@@ -1,44 +1,45 @@
 {
-	"name": "liquidx",
-	"version": "0.1.0",
-	"description": "Write Liquid with JSX",
-	"type": "module",
-	"main": "index.js",
-	"engines": {
-		"node": ">=24",
-		"pnpm": ">=10.10.0"
-	},
-	"directories": {
-		"example": "example"
-	},
-	"scripts": {
-		"test": "node --import tsx --test src/**/*.test.{ts,tsx}",
-		"dev": "node --import tsx --test --watch src/**/*.test.{ts,tsx}",
-		"build": "tsdown"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/stefvw93/bert.git"
-	},
-	"author": "",
-	"license": "ISC",
-	"bugs": {
-		"url": "https://github.com/stefvw93/bert/issues"
-	},
-	"homepage": "https://github.com/stefvw93/bert#readme",
-	"devDependencies": {
-		"@biomejs/biome": "^2.2.2",
-		"@shopify/cli": "^3.84.1",
-		"@shopify/theme-check-browser": "^3.21.0",
-		"@shopify/theme-check-node": "^3.21.0",
-		"@types/node": "^24.3.1",
-		"tsdown": "^0.14.2",
-		"tsx": "^4.20.5",
-		"typescript": "^5.9.2"
-	},
-	"dependencies": {
-		"@shopify/prettier-plugin-liquid": "^1.10.0",
-		"html-jsx": "^1.0.0",
-		"prettier": "^3.6.2"
-	}
+  "name": "liquidx",
+  "version": "0.1.0",
+  "description": "Write Liquid with JSX",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=10.10.0"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "node --import tsx --test src/**/*.test.{ts,tsx}",
+    "dev": "node --import tsx --test --watch src/**/*.test.{ts,tsx}",
+    "playground": "tsx playground.ts --watch",
+    "build": "tsdown"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stefvw93/bert.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stefvw93/bert/issues"
+  },
+  "homepage": "https://github.com/stefvw93/bert#readme",
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.2",
+    "@shopify/cli": "^3.84.1",
+    "@shopify/theme-check-browser": "^3.21.0",
+    "@shopify/theme-check-node": "^3.21.0",
+    "@types/node": "^24.3.1",
+    "tsdown": "^0.14.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@shopify/prettier-plugin-liquid": "^1.10.0",
+    "html-jsx": "^1.0.0",
+    "prettier": "^3.6.2"
+  }
 }
