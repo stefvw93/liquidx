@@ -4,7 +4,7 @@ import { LiquidObject } from "./object";
 export type MediaType = ("image" | "model" | "video" | "external_video") & {};
 
 export class Media extends LiquidObject {
-	@LiquidObject.property() mediaType = "media_type";
+	@LiquidObject.property() mediaType = "media_type" as const;
 	@LiquidObject.property() preview = new Image();
 }
 
