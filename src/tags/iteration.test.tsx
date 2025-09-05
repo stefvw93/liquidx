@@ -77,7 +77,11 @@ describe("Tags/Iteration", () => {
 			<Paginate array="collection.products" by={10}>
 				{(array) => (
 					<For array={array}>
-						{(variable, _array) => <div>{`{{ ${variable} }}`}</div>}
+						{(variable, _array) => (
+							<div>
+								<Echo>{variable}</Echo>
+							</div>
+						)}
 					</For>
 				)}
 			</Paginate>,

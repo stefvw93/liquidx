@@ -24,6 +24,7 @@ export async function setupTheme(): Promise<string> {
 	// Create all necessary Shopify theme directories
 	const themeDirs = [
 		"assets",
+		"blocks",
 		"config",
 		"layout",
 		"locales",
@@ -65,7 +66,7 @@ export async function checkLiquidString(
 	liquid: string,
 	filename = `inline-${crypto.randomUUID()}.liquid`,
 	directory = "snippets",
-): Promise<string> {
+) {
 	const themeRoot = await setupTheme();
 	const filePath = join(themeRoot, directory, filename);
 
@@ -80,7 +81,7 @@ export async function checkLiquidString(
 		throw new Error(`${offenses[0].check}: ${offenses[0].message}`);
 	}
 
-	return liquid;
+	return { liquid, directory, filename };
 }
 
 /**
