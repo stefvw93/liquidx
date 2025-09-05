@@ -29,7 +29,8 @@ export type JSXChildNode =
 	| Iterable<JSXChildNode>
 	| boolean
 	| null
-	| undefined;
+	| undefined
+	| { toString(): string };
 
 export type PropsWithChildren<T = object> = T & {
 	children?: JSXChildNode;
