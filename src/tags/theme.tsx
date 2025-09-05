@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from "~/jsx-runtime";
+import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 
 /**
  * Creates a designated area in your [theme](https://shopify.dev/themes/architecture) where blocks can be rendered.
@@ -56,4 +56,74 @@ export function JavaScript({ children }: PropsWithChildren) {
  */
 export function Layout({ name }: { name?: string }) {
   return `{% layout ${name ? `'${name}'` : "none"} %}`;
+}
+
+/**
+ * Renders a snippet or app block.
+ * Inside snippets and app blocks, you can't directly access variables that are created outside of the snippet or app block. However, you can specify variables as parameters to pass outside variables to snippets.
+ * While you can't directly access created variables, you can access global objects, as well as any objects that are directly accessible outside the snippet or app block. For example, a snippet or app block inside the product template can access the product object, and a snippet or app block inside a section can access the section object.
+ * Outside a snippet or app block, you can't access variables created inside the snippet or app block.
+ */
+
+export function Render<
+  ArrayType extends string,
+  VariableType extends string = "render_item",
+>(props: {
+  filename: string;
+  variable?: VariableType;
+  array: ArrayType;
+  children?:
+    | JSXChildNode
+    | ((variable: VariableType, array: ArrayType) => JSXChildNode);
+  [attribute: string]: unknown;
+}): string;
+
+export function Render(props: {
+  filename: string;
+  [attribute: string]: unknown;
+}): string;
+
+export function Render(props: {
+  filename: string;
+  with: string | { object: string; as: string };
+  [attribute: string]: unknown;
+}): string;
+
+export function Render({
+  filename,
+  array,
+  variable,
+  with: liquidWith,
+  children,
+}: {
+  filename: string;
+  array?: string;
+  variable?: string;
+  /**
+   * You can pass a single object to a snippet using the with parameter. You can also supply an optional as parameter to specify a custom name to reference the object inside the snippet. If you don't use the as parameter to specify a custom name, then you can reference the object using the snippet filename.
+   */
+  with?: string | { object: string; as: string };
+  children?: JSXChildNode | ((variable: string, array: string) => JSXChildNode);
+  [attribute: string]: unknown;
+}) {
+  let tag = `render '${filename}'`;
+
+  if (array) {
+    tag += ` for ${array} as ${variable || "render_item"}`;
+  }
+
+  // {% render 'filename' with object as name %}
+  if (liquidWith) {
+    if (
+      typeof liquidWith === "object" &&
+      "object" in liquidWith &&
+      "as" in liquidWith
+    ) {
+      tag += ` with ${liquidWith.object} as ${liquidWith.as}`;
+    } else {
+      tag += ` with ${liquidWith}`;
+    }
+  }
+
+  return `{% ${tag} %}`;
 }
