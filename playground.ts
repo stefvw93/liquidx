@@ -1,3 +1,4 @@
 import { product } from "@/objects/product";
 
-console.log(product.featured_media.toString());
+console.log(`${product.featuredMedia.mediaType}`);
+console.log(`${product.featuredMedia.preview}`);
