@@ -35,6 +35,12 @@ const Dictionary = class Dictionary<
 	[property: string]: T;
 };
 
+type LiquidArray = new <T>(
+	type: () => T,
+) => LiquidObject & {
+	[property: number]: T;
+};
+
 /** @internal */
 const LiquidArray = Dictionary as new <T>(
 	type: () => T,

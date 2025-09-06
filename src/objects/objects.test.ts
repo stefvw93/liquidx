@@ -90,6 +90,10 @@ describe("Objects", () => {
 
 	test("currency", () => {});
 
+	test("market", () => {});
+
+	test("metafield", () => {});
+
 	test("shopLocale", () => {
 		strictEqual(String(shopLocale), "shop_locale");
 		strictEqual(String(shopLocale.endonymName), "shop_locale.endonym_name");

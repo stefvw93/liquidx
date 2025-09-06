@@ -35,7 +35,7 @@ export class LiquidObject {
 
 				const fieldName = context.name;
 				const fieldNameIsNumber = isNumber(fieldName);
-				const fieldNameIsHandle = isHandle(fieldName);
+				const fieldNameNeedsBrackets = needsBracketNotation(fieldName);
 
 				if (value instanceof LiquidObject) {
 					value._parent = this;
@@ -48,7 +48,7 @@ export class LiquidObject {
 
 						if (fieldNameIsNumber) {
 							path = `[${fieldName}]`;
-						} else if (fieldNameIsHandle) {
+						} else if (fieldNameNeedsBrackets) {
 							path = `['${fieldName}']`;
 						} else {
 							path = toSnakeCase(fieldName);
@@ -59,7 +59,7 @@ export class LiquidObject {
 						while (current) {
 							const segment = current._path ?? current.toString();
 							const delimiter = path.startsWith("[") ? "" : ".";
-							const segmentIsHandle = isHandle(segment);
+							const segmentNeedsBrackets = needsBracketNotation(segment);
 							const segmentIsNumber = isNumber(segment);
 							const suffix = path.endsWith("]") ? "" : ".";
 
@@ -67,7 +67,7 @@ export class LiquidObject {
 
 							if (segmentIsNumber) {
 								nextSegment = `[${segment}]${suffix}`;
-							} else if (segmentIsHandle) {
+							} else if (segmentNeedsBrackets) {
 								nextSegment = `['${segment}']${suffix}`;
 							} else {
 								nextSegment = `${toSnakeCase(segment)}${delimiter}`;
@@ -85,5 +85,5 @@ export class LiquidObject {
 	}
 }
 
-const isHandle = (path: string): boolean => path.includes("-");
+const needsBracketNotation = (path: string): boolean => /[-?]/.test(path);
 const isNumber = (path: string): boolean => !Number.isNaN(Number(path));
