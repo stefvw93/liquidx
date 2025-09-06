@@ -50,7 +50,7 @@ describe("Objects", () => {
 				);
 			}
 
-			strictEqual(String(new Test()["some-array"][3]), "test['some-array'][3]");
+			strictEqual(String(new Test()["some-array"][0]), "test['some-array'][0]");
 		});
 	});
 
@@ -87,6 +87,8 @@ describe("Objects", () => {
 	});
 
 	test("country", () => {});
+
+	test("currency", () => {});
 
 	test("shopLocale", () => {
 		strictEqual(String(shopLocale), "shop_locale");
