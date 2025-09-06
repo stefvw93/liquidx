@@ -1,17 +1,19 @@
 import { toSnakeCase } from "@/util/snake-case";
 
-const LiquidObjectTypeId = Symbol("liquidx/object");
+export const LiquidObjectTypeId = Symbol("liquidx/object");
 
 export interface LiquidObjectConfig {
 	delimiter(path: string): string;
 	transformSegment(segment: string, delimiter: string): string;
 }
 
-export abstract class LiquidObject {
+export class LiquidObject {
 	[LiquidObjectTypeId] = LiquidObjectTypeId;
 
-	#parent?: LiquidObject;
-	#path?: string;
+	/** @internal */
+	private _parent?: LiquidObject;
+	/** @internal */
+	private _path?: string;
 
 	toString(): string {
 		return toSnakeCase(this.constructor.name);
@@ -34,8 +36,8 @@ export abstract class LiquidObject {
 				}
 
 				if (value instanceof LiquidObject) {
-					value.#parent = this;
-					value.#path = fieldName;
+					value._parent = this;
+					value._path = fieldName;
 				}
 
 				return Object.assign(value as object, {
@@ -47,13 +49,13 @@ export abstract class LiquidObject {
 						let current: LiquidObject | undefined = this;
 
 						while (current) {
-							const segment = current.#path ?? current.toString();
+							const segment = current._path ?? current.toString();
 							const delimiter = path.startsWith("[") ? "" : ".";
 							const nextSegment = isHandle(segment)
 								? `['${segment}']`
 								: `${toSnakeCase(segment)}${delimiter}`;
 							path = `${nextSegment}${path}`;
-							current = current.#parent;
+							current = current._parent;
 						}
 
 						return path;

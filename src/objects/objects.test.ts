@@ -1,9 +1,34 @@
 import { strictEqual } from "node:assert";
 import test, { describe } from "node:test";
+import { Dictionary } from "@/util/dictionary";
+import { LiquidObject } from "@/util/object";
 import { additionalCheckoutButtons } from "./additional-checkout-buttons";
 import { address } from "./address";
+import { allCountryOptionTags } from "./all-country-option-tags";
+import { DataType, Primitive } from "./data";
 
 describe("Objects", () => {
+	describe("Dictionary", () => {
+		test("is LiquidObject", () => {
+			strictEqual(
+				LiquidObject.isLiquidObject(
+					new Dictionary(() => new DataType(Primitive.string)),
+				),
+				true,
+			);
+		});
+
+		test("dictionary proxy", () => {
+			class Test extends LiquidObject {
+				@LiquidObject.property() dict = new Dictionary(
+					() => new Dictionary(() => new DataType(Primitive.string)),
+				);
+			}
+
+			strictEqual(String(new Test().dict.foo.bar), "test.dict.foo.bar");
+		});
+	});
+
 	test("additionalCheckoutButtons", () => {
 		strictEqual(
 			String(additionalCheckoutButtons),
@@ -30,5 +55,9 @@ describe("Objects", () => {
 		strictEqual(String(address.summary), "address.summary");
 		strictEqual(String(address.url), "address.url");
 		strictEqual(String(address.zip), "address.zip");
+	});
+
+	test("allCountryOptionTags", () => {
+		strictEqual(String(allCountryOptionTags), "all_country_option_tags");
 	});
 });

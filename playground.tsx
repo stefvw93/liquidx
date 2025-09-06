@@ -6,6 +6,7 @@ import { address } from "@/objects/address";
 import { DataType, Primitive } from "@/objects/data";
 import { product } from "@/objects/product";
 import { Echo } from "@/tags/syntax";
+import { Dictionary } from "@/util/dictionary";
 
 console.log(`${product.featuredMedia}`);
 console.log(`${product.featuredMedia.mediaType}`);
