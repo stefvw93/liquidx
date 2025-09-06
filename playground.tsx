@@ -1,6 +1,8 @@
-import { Market } from "@/objects/market";
-import { ShopLocale } from "@/objects/shop-locale";
-import { LiquidArray } from "@/util/dictionary";
+import { DataType, Primitive } from "@/util/data";
 import { LiquidObject } from "@/util/object";
 
-console.log(String(new Market().metafields["some-metafield"]["list?"]));
+class Test extends LiquidObject {
+	@LiquidObject.property() a = new DataType(Primitive.string);
+}
+
+console.log(String(new Test().a));

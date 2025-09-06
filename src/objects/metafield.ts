@@ -18,3 +18,5 @@ export class Metafield extends LiquidObject {
 	/** The value of the metafield. */
 	@LiquidObject.property() value = new DataType(Primitive.string);
 }
+
+export const metafield = new Metafield();

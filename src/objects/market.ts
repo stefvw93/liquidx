@@ -24,3 +24,5 @@ export class Market extends LiquidObject {
 	 */
 	@LiquidObject.property() metafields = new Dictionary(() => new Metafield());
 }
+
+export const market = new Market();

@@ -14,3 +14,5 @@ export class Currency extends LiquidObject {
 	/** The symbol of the currency. */
 	@LiquidObject.property() symbol = new DataType(Primitive.string);
 }
+
+export const currency = new Currency();
