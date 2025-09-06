@@ -21,26 +21,6 @@ export abstract class LiquidObject {
 		return x != null && typeof x === "object" && LiquidObjectTypeId in x;
 	}
 
-	static toPath(fieldName: string, context: LiquidObject): string {
-		let path = isHandle(fieldName)
-			? `['${fieldName}']`
-			: `${toSnakeCase(fieldName)}`;
-
-		let current: LiquidObject | undefined = context;
-
-		while (current) {
-			const segment = current.#path ?? current.toString();
-			const delimiter = path.startsWith("[") ? "" : ".";
-			const nextSegment = isHandle(segment)
-				? `['${segment}']`
-				: `${toSnakeCase(segment)}${delimiter}`;
-			path = `${nextSegment}${path}`;
-			current = current.#parent;
-		}
-
-		return path;
-	}
-
 	static property<T extends LiquidObject>() {
 		return function decorator(
 			_: undefined,
@@ -59,7 +39,25 @@ export abstract class LiquidObject {
 				}
 
 				return Object.assign(value as object, {
-					toString: (): string => LiquidObject.toPath(fieldName, this),
+					toString: (): string => {
+						let path = isHandle(fieldName)
+							? `['${fieldName}']`
+							: `${toSnakeCase(fieldName)}`;
+
+						let current: LiquidObject | undefined = this;
+
+						while (current) {
+							const segment = current.#path ?? current.toString();
+							const delimiter = path.startsWith("[") ? "" : ".";
+							const nextSegment = isHandle(segment)
+								? `['${segment}']`
+								: `${toSnakeCase(segment)}${delimiter}`;
+							path = `${nextSegment}${path}`;
+							current = current.#parent;
+						}
+
+						return path;
+					},
 				}) as T;
 			};
 		};
