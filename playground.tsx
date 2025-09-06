@@ -1,6 +1,8 @@
 import { filter } from "@/filters";
 import { imageUrl } from "@/filters/image-url";
 import { downcase, upcase } from "@/filters/string";
+import { additionalCheckoutButtons } from "@/objects/additional-checkout-buttons";
+import { address } from "@/objects/address";
 import { DataType, Primitive } from "@/objects/data";
 import { product } from "@/objects/product";
 import { Echo } from "@/tags/syntax";
@@ -19,3 +21,6 @@ console.log(
 		)}
 	</Echo>,
 );
+
+console.log(`${additionalCheckoutButtons}`);
+console.log(`${address.address1}`);
