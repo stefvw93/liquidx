@@ -16,13 +16,15 @@ const Dictionary = class Dictionary<
 
 				const value = LiquidObject.property()(undefined, {
 					name: property,
+					addInitializer(_: () => void) {},
 				} as ClassFieldDecoratorContext<LiquidObject, LiquidObject>).bind(
 					target,
 				)(type());
 
 				Object.defineProperty(target, property, {
 					value,
-					configurable: true,
+					writable: false,
+					configurable: false,
 				});
 
 				return Reflect.get(target, property, receiver);
