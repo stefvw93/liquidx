@@ -1,6 +1,6 @@
 import { LiquidObject } from "@/util/object";
+import { DataType, Primitive } from "../util/data";
 import { Country } from "./country";
-import { DataType, Primitive } from "./data";
 
 /**
  * An address, such as a customer address or order shipping address.

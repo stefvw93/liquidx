@@ -1,4 +1,4 @@
-import { DataType, Primitive } from "./data";
+import { DataType, Primitive } from "../util/data";
 
 class AllCountryOptionTags extends DataType<Primitive.string> {}
 

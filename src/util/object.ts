@@ -29,11 +29,13 @@ export class LiquidObject {
 			context: ClassFieldDecoratorContext<LiquidObject, T>,
 		) {
 			return function (this: LiquidObject, value: LiquidObject) {
-				const fieldName = context.name as string;
-
-				if (typeof fieldName === "symbol") {
+				if (typeof context.name === "symbol") {
 					throw new Error("Symbol is not a valid Liquid property name");
 				}
+
+				const fieldName = context.name;
+				const fieldNameIsNumber = isNumber(fieldName);
+				const fieldNameIsHandle = isHandle(fieldName);
 
 				if (value instanceof LiquidObject) {
 					value._parent = this;
@@ -42,18 +44,35 @@ export class LiquidObject {
 
 				return Object.assign(value as object, {
 					toString: (): string => {
-						let path = isHandle(fieldName)
-							? `['${fieldName}']`
-							: `${toSnakeCase(fieldName)}`;
+						let path: string;
+
+						if (fieldNameIsNumber) {
+							path = `[${fieldName}]`;
+						} else if (fieldNameIsHandle) {
+							path = `['${fieldName}']`;
+						} else {
+							path = toSnakeCase(fieldName);
+						}
 
 						let current: LiquidObject | undefined = this;
 
 						while (current) {
 							const segment = current._path ?? current.toString();
 							const delimiter = path.startsWith("[") ? "" : ".";
-							const nextSegment = isHandle(segment)
-								? `['${segment}']${path.endsWith("]") ? "" : "."}`
-								: `${toSnakeCase(segment)}${delimiter}`;
+							const segmentIsHandle = isHandle(segment);
+							const segmentIsNumber = isNumber(segment);
+							const suffix = path.endsWith("]") ? "" : ".";
+
+							let nextSegment: string;
+
+							if (segmentIsNumber) {
+								nextSegment = `[${segment}]${suffix}`;
+							} else if (segmentIsHandle) {
+								nextSegment = `['${segment}']${suffix}`;
+							} else {
+								nextSegment = `${toSnakeCase(segment)}${delimiter}`;
+							}
+
 							path = `${nextSegment}${path}`;
 							current = current._parent;
 						}
@@ -67,3 +86,4 @@ export class LiquidObject {
 }
 
 const isHandle = (path: string): boolean => path.includes("-");
+const isNumber = (path: string): boolean => !Number.isNaN(Number(path));

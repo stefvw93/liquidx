@@ -1,5 +1,5 @@
+import { DataType, Primitive } from "../util/data";
 import { LiquidObject } from "../util/object";
-import { DataType, Primitive } from "./data";
 
 export class Image extends LiquidObject {
 	@LiquidObject.property() src = new DataType(Primitive.string);

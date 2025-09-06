@@ -1,5 +1,6 @@
 /** biome-ignore-all lint/style/useLiteralEnumMembers: Using NaN as a number */
-import { LiquidObject } from "../util/object";
+
+import { LiquidObject } from "./object";
 
 export enum Primitive {
 	/**

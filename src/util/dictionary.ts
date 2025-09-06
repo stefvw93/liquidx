@@ -1,5 +1,6 @@
 import { LiquidObject } from "./object";
 
+/** @internal */
 const Dictionary = class Dictionary<
 	T extends LiquidObject,
 > extends LiquidObject {
@@ -34,4 +35,11 @@ const Dictionary = class Dictionary<
 	[property: string]: T;
 };
 
-export { Dictionary };
+/** @internal */
+const LiquidArray = Dictionary as new <T>(
+	type: () => T,
+) => LiquidObject & {
+	[property: number]: T;
+};
+
+export { Dictionary, LiquidArray };

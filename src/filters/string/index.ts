@@ -1,4 +1,4 @@
-import { DataType, Primitive } from "@/objects/data";
+import { DataType, Primitive } from "@/util/data";
 import type { Filter } from "..";
 
 export const upcase: Filter<

@@ -1,11 +1,12 @@
 import { strictEqual } from "node:assert";
 import test, { describe } from "node:test";
-import { Dictionary } from "@/util/dictionary";
+import { Dictionary, LiquidArray } from "@/util/dictionary";
 import { LiquidObject } from "@/util/object";
+import { DataType, Primitive } from "../util/data";
 import { additionalCheckoutButtons } from "./additional-checkout-buttons";
 import { address } from "./address";
 import { allCountryOptionTags } from "./all-country-option-tags";
-import { DataType, Primitive } from "./data";
+import { shopLocale } from "./shop-locale";
 
 describe("Objects", () => {
 	describe("Dictionary", () => {
@@ -29,6 +30,27 @@ describe("Objects", () => {
 				String(new Test()["some-dict"].foo.bar),
 				"test['some-dict'].foo.bar",
 			);
+		});
+	});
+
+	describe("Array", () => {
+		test("is LiquidObject", () => {
+			strictEqual(
+				LiquidObject.isLiquidObject(
+					new LiquidArray(() => new DataType(Primitive.string)),
+				),
+				true,
+			);
+		});
+
+		test("array proxy", () => {
+			class Test extends LiquidObject {
+				@LiquidObject.property() "some-array" = new LiquidArray(
+					() => new DataType(Primitive.string),
+				);
+			}
+
+			strictEqual(String(new Test()["some-array"][3]), "test['some-array'][3]");
 		});
 	});
 
@@ -62,5 +84,16 @@ describe("Objects", () => {
 
 	test("allCountryOptionTags", () => {
 		strictEqual(String(allCountryOptionTags), "all_country_option_tags");
+	});
+
+	test("country", () => {});
+
+	test("shopLocale", () => {
+		strictEqual(String(shopLocale), "shop_locale");
+		strictEqual(String(shopLocale.endonymName), "shop_locale.endonym_name");
+		strictEqual(String(shopLocale.isoCode), "shop_locale.iso_code");
+		strictEqual(String(shopLocale.name), "shop_locale.name");
+		strictEqual(String(shopLocale.primary), "shop_locale.primary");
+		strictEqual(String(shopLocale.rootUrl), "shop_locale.root_url");
 	});
 });

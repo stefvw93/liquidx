@@ -1,5 +1,5 @@
+import { DataType, Primitive } from "../util/data";
 import { LiquidObject } from "../util/object";
-import { DataType, Primitive } from "./data";
 import { Image } from "./image";
 
 export type MediaType = ("image" | "model" | "video" | "external_video") & {};

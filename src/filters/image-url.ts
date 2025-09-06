@@ -1,6 +1,6 @@
-import { DataType, Primitive } from "@/objects/data";
 import type { Image } from "@/objects/image";
 import type { Product } from "@/objects/product";
+import { DataType, Primitive } from "@/util/data";
 import { buildFilter, type Filter } from ".";
 
 export const imageUrl: (size?: {
