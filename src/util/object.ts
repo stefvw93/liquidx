@@ -28,6 +28,15 @@ export class LiquidObject {
 			_: undefined,
 			context: ClassFieldDecoratorContext<LiquidObject, T>,
 		) {
+			context.addInitializer(function () {
+				// make the property readonly
+				Object.defineProperty(this, context.name, {
+					value: this[context.name as keyof LiquidObject],
+					writable: false,
+					configurable: false,
+				});
+			});
+
 			return function (this: LiquidObject, value: LiquidObject) {
 				if (typeof context.name === "symbol") {
 					throw new Error("Symbol is not a valid Liquid property name");

@@ -1,4 +1,4 @@
-import { strictEqual } from "node:assert";
+import { strictEqual, throws } from "node:assert";
 import test, { describe } from "node:test";
 import { Dictionary, LiquidArray } from "@/util/dictionary";
 import { LiquidObject } from "@/util/object";
@@ -6,9 +6,23 @@ import { DataType, Primitive } from "../util/data";
 import { additionalCheckoutButtons } from "./additional-checkout-buttons";
 import { address } from "./address";
 import { allCountryOptionTags } from "./all-country-option-tags";
+import { country } from "./country";
+import { currency } from "./currency";
+import { market } from "./market";
+import { metafield } from "./metafield";
 import { shopLocale } from "./shop-locale";
 
 describe("Objects", () => {
+	test("readonly properties", () => {
+		throws(() => {
+			class Test extends LiquidObject {
+				@LiquidObject.property() a = new DataType(Primitive.string);
+			}
+			const test = new Test();
+			test.a = new DataType(Primitive.string);
+		});
+	});
+
 	describe("Dictionary", () => {
 		test("is LiquidObject", () => {
 			strictEqual(
@@ -86,13 +100,41 @@ describe("Objects", () => {
 		strictEqual(String(allCountryOptionTags), "all_country_option_tags");
 	});
 
-	test("country", () => {});
+	test("country", () => {
+		strictEqual(String(country), "country");
+		strictEqual(
+			String(country.availableLanguages),
+			"country.available_languages",
+		);
+		strictEqual(String(country.continent), "country.continent");
+		strictEqual(String(country.currency), "country.currency");
+		strictEqual(String(country.isoCode), "country.iso_code");
+		strictEqual(String(country.market), "country.market");
+		strictEqual(String(country.name), "country.name");
+		strictEqual(String(country["popular?"]), "country['popular?']");
+		strictEqual(String(country.unitSystem), "country.unit_system");
+	});
 
-	test("currency", () => {});
+	test("currency", () => {
+		strictEqual(String(currency), "currency");
+		strictEqual(String(currency.isoCode), "currency.iso_code");
+		strictEqual(String(currency.name), "currency.name");
+		strictEqual(String(currency.symbol), "currency.symbol");
+	});
 
-	test("market", () => {});
+	test("market", () => {
+		strictEqual(String(market), "market");
+		strictEqual(String(market.handle), "market.handle");
+		strictEqual(String(market.id), "market.id");
+		strictEqual(String(market.metafields), "market.metafields");
+	});
 
-	test("metafield", () => {});
+	test("metafield", () => {
+		strictEqual(String(metafield), "metafield");
+		strictEqual(String(metafield["list?"]), "metafield['list?']");
+		strictEqual(String(metafield.type), "metafield.type");
+		strictEqual(String(metafield.value), "metafield.value");
+	});
 
 	test("shopLocale", () => {
 		strictEqual(String(shopLocale), "shop_locale");
