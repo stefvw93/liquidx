@@ -1,7 +1,11 @@
+import { LiquidObject } from "../util/object";
 import { Media } from "./media";
-import { LiquidObject } from "./object";
 
 export class Product extends LiquidObject {
+	constructor() {
+		super(LiquidObject.commonObjectConfig);
+	}
+
 	@LiquidObject.property() featuredMedia = new Media();
 }
 
