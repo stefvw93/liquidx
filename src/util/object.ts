@@ -10,7 +10,7 @@ export interface LiquidObjectConfig {
 export abstract class LiquidObject {
 	[LiquidObjectTypeId] = LiquidObjectTypeId;
 
-	parent?: LiquidObject;
+	#parent?: LiquidObject;
 	#path?: string;
 
 	toString(): string {
@@ -35,7 +35,7 @@ export abstract class LiquidObject {
 				? `['${segment}']`
 				: `${toSnakeCase(segment)}${delimiter}`;
 			path = `${nextSegment}${path}`;
-			current = current.parent;
+			current = current.#parent;
 		}
 
 		return path;
@@ -54,7 +54,7 @@ export abstract class LiquidObject {
 				}
 
 				if (value instanceof LiquidObject) {
-					value.parent = this;
+					value.#parent = this;
 					value.#path = fieldName;
 				}
 
