@@ -12,25 +12,10 @@ export abstract class LiquidObject {
 
 	parent?: LiquidObject;
 	#path?: string;
-	#delimiter: (path: string) => string;
-	#transformSegment: (segment: string, delimiter: string) => string;
-
-	constructor(config: LiquidObjectConfig) {
-		this.#delimiter = config.delimiter;
-		this.#transformSegment = config.transformSegment;
-	}
 
 	toString(): string {
 		return toSnakeCase(this.constructor.name);
 	}
-
-	static commonObjectConfig: LiquidObjectConfig = {
-		delimiter: (path) => (path.startsWith("[") ? "" : "."),
-		transformSegment: (segment, delimiter) =>
-			isHandle(segment)
-				? `['${segment}']`
-				: `${toSnakeCase(segment)}${delimiter}`,
-	};
 
 	static isLiquidObject(x: unknown): x is LiquidObject {
 		return x != null && typeof x === "object" && LiquidObjectTypeId in x;
@@ -45,8 +30,10 @@ export abstract class LiquidObject {
 
 		while (current) {
 			const segment = current.#path ?? current.toString();
-			const delimiter = context.#delimiter(path);
-			const nextSegment = context.#transformSegment(segment, delimiter);
+			const delimiter = path.startsWith("[") ? "" : ".";
+			const nextSegment = isHandle(segment)
+				? `['${segment}']`
+				: `${toSnakeCase(segment)}${delimiter}`;
 			path = `${nextSegment}${path}`;
 			current = current.parent;
 		}

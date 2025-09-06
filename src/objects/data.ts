@@ -56,6 +56,6 @@ export enum Primitive {
 
 export class DataType<T extends Primitive> extends LiquidObject {
 	constructor(public readonly type: T) {
-		super(LiquidObject.commonObjectConfig);
+		super();
 	}
 }

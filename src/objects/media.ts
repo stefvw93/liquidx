@@ -5,10 +5,6 @@ import { Image } from "./image";
 export type MediaType = ("image" | "model" | "video" | "external_video") & {};
 
 export class Media extends LiquidObject {
-	constructor() {
-		super(LiquidObject.commonObjectConfig);
-	}
-
 	@LiquidObject.property() mediaType = new DataType(Primitive.string);
 	@LiquidObject.property() preview = new Image();
 }
