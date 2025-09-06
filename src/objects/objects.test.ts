@@ -20,12 +20,15 @@ describe("Objects", () => {
 
 		test("dictionary proxy", () => {
 			class Test extends LiquidObject {
-				@LiquidObject.property() dict = new Dictionary(
+				@LiquidObject.property() "some-dict" = new Dictionary(
 					() => new Dictionary(() => new DataType(Primitive.string)),
 				);
 			}
 
-			strictEqual(String(new Test().dict.foo.bar), "test.dict.foo.bar");
+			strictEqual(
+				String(new Test()["some-dict"].foo.bar),
+				"test['some-dict'].foo.bar",
+			);
 		});
 	});
 

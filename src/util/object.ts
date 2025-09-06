@@ -52,7 +52,7 @@ export class LiquidObject {
 							const segment = current._path ?? current.toString();
 							const delimiter = path.startsWith("[") ? "" : ".";
 							const nextSegment = isHandle(segment)
-								? `['${segment}']`
+								? `['${segment}']${path.endsWith("]") ? "" : "."}`
 								: `${toSnakeCase(segment)}${delimiter}`;
 							path = `${nextSegment}${path}`;
 							current = current._parent;

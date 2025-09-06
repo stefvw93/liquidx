@@ -7,21 +7,11 @@ import { DataType, Primitive } from "@/objects/data";
 import { product } from "@/objects/product";
 import { Echo } from "@/tags/syntax";
 import { Dictionary } from "@/util/dictionary";
+import { LiquidObject } from "@/util/object";
 
-console.log(`${product.featuredMedia}`);
-console.log(`${product.featuredMedia.mediaType}`);
-console.log(<Echo>{product.featuredMedia.preview}</Echo>);
-
-console.log(
-	<Echo>
-		{filter(
-			product.featuredMedia.preview,
-			imageUrl({ width: 100, height: 100 }),
-			upcase,
-			downcase,
-		)}
-	</Echo>,
-);
-
-console.log(`${additionalCheckoutButtons}`);
-console.log(`${address.address1}`);
+class Test extends LiquidObject {
+	@LiquidObject.property() "some-dict" = new Dictionary(
+		() => new Dictionary(() => new DataType(Primitive.string)),
+	);
+}
+console.log(String(new Test()["some-dict"].foo.bar));
