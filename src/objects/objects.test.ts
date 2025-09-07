@@ -9,6 +9,7 @@ import { allCountryOptionTags } from "./all-country-option-tags";
 import { allProducts } from "./all-products";
 import { app } from "./app";
 import { article } from "./article";
+import { articles } from "./articles";
 import { comment } from "./comment";
 import { country } from "./country";
 import { currency } from "./currency";
@@ -159,6 +160,11 @@ describe("Objects", () => {
 		strictEqual(String(article.updatedAt), "article.updated_at");
 		strictEqual(String(article.url), "article.url");
 		strictEqual(String(article.user), "article.user");
+	});
+
+	test("articles", () => {
+		strictEqual(String(articles), "articles");
+		strictEqual(String(articles["some-article"]), "articles['some-article']");
 	});
 
 	test("comment", () => {
