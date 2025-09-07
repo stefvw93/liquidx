@@ -7,39 +7,39 @@ import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 export function Content(props: { _for: "blocks" }): string;
 
 export function Content(props: {
-  _for: "block";
-  type: string;
-  id: string;
-  [attribute: string]: unknown;
+	_for: "block";
+	type: string;
+	id: string;
+	[attribute: string]: unknown;
 }): string;
 
 export function Content({
-  _for,
-  type,
-  id,
-  children,
-  ...rest
+	_for,
+	type,
+	id,
+	children,
+	...rest
 }: {
-  _for: "blocks" | "block";
-  type?: string;
-  id?: string;
-  [attribute: string]: unknown;
+	_for: "blocks" | "block";
+	type?: string;
+	id?: string;
+	[attribute: string]: unknown;
 }) {
-  let tag = `content_for '${_for}'`;
+	let tag = `content_for '${_for}'`;
 
-  if (type) {
-    tag += `, type: '${type}'`;
-  }
+	if (type) {
+		tag += `, type: '${type}'`;
+	}
 
-  if (id) {
-    tag += `, id: '${id}'`;
-  }
+	if (id) {
+		tag += `, id: '${id}'`;
+	}
 
-  for (const [key, value] of Object.entries(rest)) {
-    tag += `, ${key}: ${value}`;
-  }
+	for (const [key, value] of Object.entries(rest)) {
+		tag += `, ${key}: ${value}`;
+	}
 
-  return `{% ${tag} %}`;
+	return `{% ${tag} %}`;
 }
 
 /**
@@ -48,14 +48,14 @@ export function Content({
  * To learn more about how JavaScript that's defined between the javascript tags is loaded and run, refer to the documentation for [javascript tags](https://shopify.dev/storefronts/themes/best-practices/javascript-and-stylesheet-tags#javascript).
  */
 export function JavaScript({ children }: PropsWithChildren) {
-  return `{% javascript %}${children}{% endjavascript %}`;
+	return `{% javascript %}${children}{% endjavascript %}`;
 }
 
 /**
  * Specify which [layout](https://shopify.dev/themes/architecture/layouts) to use.
  */
 export function Layout({ name }: { name?: string }) {
-  return `{% layout ${name ? `'${name}'` : "none"} %}`;
+	return `{% layout ${name ? `'${name}'` : "none"} %}`;
 }
 
 /**
@@ -66,71 +66,71 @@ export function Layout({ name }: { name?: string }) {
  */
 
 export function Render<
-  ArrayType extends string,
-  VariableType extends string = "render_item",
+	ArrayType extends string,
+	VariableType extends string = "render_item",
 >(props: {
-  filename: string;
-  variable?: VariableType;
-  array: ArrayType;
-  children?:
-    | JSXChildNode
-    | ((variable: VariableType, array: ArrayType) => JSXChildNode);
-  [attribute: string]: unknown;
+	filename: string;
+	variable?: VariableType;
+	array: ArrayType;
+	children?:
+		| JSXChildNode
+		| ((variable: VariableType, array: ArrayType) => JSXChildNode);
+	[attribute: string]: unknown;
 }): string;
 
 export function Render(props: {
-  filename: string;
-  [attribute: string]: unknown;
+	filename: string;
+	[attribute: string]: unknown;
 }): string;
 
 export function Render(props: {
-  filename: string;
-  with: string | { object: string; as: string };
-  [attribute: string]: unknown;
+	filename: string;
+	with: string | { object: string; as: string };
+	[attribute: string]: unknown;
 }): string;
 
 export function Render({
-  filename,
-  array,
-  variable,
-  with: liquidWith,
-  children,
-  ...attributes
+	filename,
+	array,
+	variable,
+	with: liquidWith,
+	children,
+	...attributes
 }: {
-  filename: string;
-  array?: string;
-  variable?: string;
-  /**
-   * You can pass a single object to a snippet using the with parameter. You can also supply an optional as parameter to specify a custom name to reference the object inside the snippet. If you don't use the as parameter to specify a custom name, then you can reference the object using the snippet filename.
-   */
-  with?: string | { object: string; as: string };
-  children?: JSXChildNode | ((variable: string, array: string) => JSXChildNode);
-  [attribute: string]: unknown;
+	filename: string;
+	array?: string;
+	variable?: string;
+	/**
+	 * You can pass a single object to a snippet using the with parameter. You can also supply an optional as parameter to specify a custom name to reference the object inside the snippet. If you don't use the as parameter to specify a custom name, then you can reference the object using the snippet filename.
+	 */
+	with?: string | { object: string; as: string };
+	children?: JSXChildNode | ((variable: string, array: string) => JSXChildNode);
+	[attribute: string]: unknown;
 }) {
-  let tag = `render '${filename}'`;
+	let tag = `render '${filename}'`;
 
-  if (array) {
-    tag += ` for ${array} as ${variable || "render_item"}`;
-  }
+	if (array) {
+		tag += ` for ${array} as ${variable || "render_item"}`;
+	}
 
-  // {% render 'filename' with object as name %}
-  if (liquidWith) {
-    if (
-      typeof liquidWith === "object" &&
-      "object" in liquidWith &&
-      "as" in liquidWith
-    ) {
-      tag += ` with ${liquidWith.object} as ${liquidWith.as}`;
-    } else {
-      tag += ` with ${liquidWith}`;
-    }
-  }
+	// {% render 'filename' with object as name %}
+	if (liquidWith) {
+		if (
+			typeof liquidWith === "object" &&
+			"object" in liquidWith &&
+			"as" in liquidWith
+		) {
+			tag += ` with ${liquidWith.object} as ${liquidWith.as}`;
+		} else {
+			tag += ` with ${liquidWith}`;
+		}
+	}
 
-  for (const [key, value] of Object.entries(attributes)) {
-    tag += `, ${key}: ${value}`;
-  }
+	for (const [key, value] of Object.entries(attributes)) {
+		tag += `, ${key}: ${value}`;
+	}
 
-  return `{% ${tag} %}`;
+	return `{% ${tag} %}`;
 }
 
 /**
@@ -138,7 +138,7 @@ export function Render({
  * Rendering a section with the section tag renders a section statically. To learn more about sections and how to use them in your theme, refer to [Render a section](https://shopify.dev/themes/architecture/sections#render-a-section).
  */
 export function Section({ name }: { name: string }) {
-  return `{% section ${name} %}`;
+	return `{% section ${name} %}`;
 }
 
 /**
@@ -147,7 +147,7 @@ export function Section({ name }: { name: string }) {
  * To learn more about section groups and how to use them in your theme, refer to [Section groups](https://shopify.dev/themes/architecture/section-groups#usage).
  */
 export function Sections({ name }: { name: string }) {
-  return `{% sections ${name} %}`;
+	return `{% sections ${name} %}`;
 }
 
 /**
@@ -156,5 +156,5 @@ export function Sections({ name }: { name: string }) {
  * To learn more about how CSS that's defined between the stylesheet tags is loaded and run, refer to the documentation for [stylesheet tags](https://shopify.dev/storefronts/themes/best-practices/javascript-and-stylesheet-tags#stylesheet).
  */
 export function Stylesheet({ children }: PropsWithChildren) {
-  return `{% stylesheet %}${children}{% endstylesheet %}`;
+	return `{% stylesheet %}${children}{% endstylesheet %}`;
 }

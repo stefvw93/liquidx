@@ -16,6 +16,8 @@
 		"dev": "node --import tsx --test --watch src/**/*.test.{ts,tsx}",
 		"playground": "tsx --watch playground.tsx",
 		"build": "tsdown",
+		"lint": "biome check",
+		"lint:fix": "biome check --write",
 		"scrape": "tsx scraper.ts"
 	},
 	"repository": {

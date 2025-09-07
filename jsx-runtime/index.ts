@@ -95,7 +95,7 @@ export function Fragment({ children }: { children?: JSXChildNode }): string {
 
 // this declaration allows us to augment JSX interfaces
 declare module "html-jsx" {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	// biome-ignore lint/correctness/noUnusedVariables: needed for jsx
 	interface DOMAttributes<T> extends JSX.IntrinsicAttributes {
 		children?: JSXChildNode;
 	}
