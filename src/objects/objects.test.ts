@@ -6,6 +6,10 @@ import { DataType, Primitive } from "../util/data";
 import { additionalCheckoutButtons } from "./additional-checkout-buttons";
 import { address } from "./address";
 import { allCountryOptionTags } from "./all-country-option-tags";
+import { allProducts } from "./all-products";
+import { app } from "./app";
+import { article } from "./article";
+import { comment } from "./comment";
 import { country } from "./country";
 import { currency } from "./currency";
 import { market } from "./market";
@@ -66,6 +70,19 @@ describe("Objects", () => {
 
 			strictEqual(String(new Test()["some-array"][0]), "test['some-array'][0]");
 		});
+
+		test("array total count", () => {
+			class Test extends LiquidObject {
+				@LiquidObject.property() "some-array" = new LiquidArray(
+					() => new DataType(Primitive.string),
+				);
+			}
+
+			const totalCount = new Test()["some-array"].totalCount;
+
+			strictEqual(totalCount.type, Primitive.number);
+			strictEqual(String(totalCount), "test['some-array'].total_count");
+		});
 	});
 
 	test("additionalCheckoutButtons", () => {
@@ -98,6 +115,61 @@ describe("Objects", () => {
 
 	test("allCountryOptionTags", () => {
 		strictEqual(String(allCountryOptionTags), "all_country_option_tags");
+	});
+
+	test("allProducts", () => {
+		strictEqual(
+			String(allProducts["some-product"]),
+			"all_products['some-product']",
+		);
+	});
+
+	test("app", () => {
+		strictEqual(String(app), "app");
+		strictEqual(String(app.metafields), "app.metafields");
+	});
+
+	test("article", () => {
+		strictEqual(String(article), "article");
+		strictEqual(String(article.author), "article.author");
+		strictEqual(String(article.commentPostUrl), "article.comment_post_url");
+		strictEqual(String(article.comments), "article.comments");
+		strictEqual(
+			String(article.comments[0].author),
+			"article.comments[0].author",
+		);
+		strictEqual(String(article.commentsCount), "article.comments_count");
+		strictEqual(
+			String(article["commentsEnabled?"]),
+			"article['commentsEnabled?']",
+		);
+		strictEqual(String(article.content), "article.content");
+		strictEqual(String(article.createdAt), "article.created_at");
+		strictEqual(String(article.excerpt), "article.excerpt");
+		strictEqual(String(article.excerptOrContent), "article.excerpt_or_content");
+		strictEqual(String(article.handle), "article.handle");
+		strictEqual(String(article.id), "article.id");
+		strictEqual(String(article.image), "article.image");
+		strictEqual(String(article.metafields), "article.metafields");
+		strictEqual(String(article["moderated?"]), "article['moderated?']");
+		strictEqual(String(article.publishedAt), "article.published_at");
+		strictEqual(String(article.tags), "article.tags");
+		strictEqual(String(article.templateSuffix), "article.template_suffix");
+		strictEqual(String(article.title), "article.title");
+		strictEqual(String(article.updatedAt), "article.updated_at");
+		strictEqual(String(article.url), "article.url");
+		strictEqual(String(article.user), "article.user");
+	});
+
+	test("comment", () => {
+		strictEqual(String(comment), "comment");
+		strictEqual(String(comment.author), "comment.author");
+		strictEqual(String(comment.content), "comment.content");
+		strictEqual(String(comment.createdAt), "comment.created_at");
+		strictEqual(String(comment.email), "comment.email");
+		strictEqual(String(comment.status), "comment.status");
+		strictEqual(String(comment.updatedAt), "comment.updated_at");
+		strictEqual(String(comment.url), "comment.url");
 	});
 
 	test("country", () => {
