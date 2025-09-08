@@ -1,5 +1,9 @@
-import { DataType, Primitive } from "../util/data";
+import { LiquidObject } from "@/util/object";
 
-class AllCountryOptionTags extends DataType<Primitive.string> {}
+/**
+ * Creates an `<option>` tag for each country.
 
-export const allCountryOptionTags = new AllCountryOptionTags(Primitive.string);
+*/
+export class AllCountryOptionTags extends LiquidObject {}
+
+export const allCountryOptionTags = new AllCountryOptionTags();

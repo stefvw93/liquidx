@@ -1,7 +1,9 @@
-import { DataType, Primitive } from "../util/data";
+import { LiquidObject } from "@/util/object";
 
-class AdditionalCheckoutButtons extends DataType<Primitive.boolean> {}
+/**
+ * Returns `true` if a store has any payment providers with offsite checkouts, such as PayPal Express Checkout.
 
-export const additionalCheckoutButtons = new AdditionalCheckoutButtons(
-	Primitive.boolean,
-);
+*/
+export class AdditionalCheckoutButtons extends LiquidObject {}
+
+export const additionalCheckoutButtons = new AdditionalCheckoutButtons();

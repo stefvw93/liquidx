@@ -1,10 +1,9 @@
-import { Dictionary } from "@/util/dictionary";
-import { Article } from "./article";
+import { LiquidObject } from "@/util/object";
 
-export class Articles extends Dictionary<Article> {
-	constructor() {
-		super(() => new Article());
-	}
-}
+/**
+ * All of the articles across the blogs in the store.
+
+*/
+export class Articles extends LiquidObject {}
 
 export const articles = new Articles();

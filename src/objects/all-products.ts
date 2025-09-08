@@ -1,10 +1,9 @@
-import { Dictionary } from "@/util/dictionary";
-import { Product } from "./product";
+import { LiquidObject } from "@/util/object";
 
-export class AllProducts extends Dictionary<Product> {
-	constructor() {
-		super(() => new Product());
-	}
-}
+/**
+ * All of the products on a store.
+
+*/
+export class AllProducts extends LiquidObject {}
 
 export const allProducts = new AllProducts();

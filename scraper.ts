@@ -191,6 +191,10 @@ async function scrapeObject(url: URL) {
 					returnTypeDocLink = "/docs/api/liquid/objects/filter_value_display";
 				}
 
+				if (name === "line_item" && detail === "options_with_values") {
+					actualReturnType = "unknown";
+				}
+
 				if (detail === "metafields") {
 					actualReturnType = "metafield";
 					returnTypeDocLink = "/docs/api/liquid/objects/metafield";
@@ -294,12 +298,9 @@ async function createObjectModuleClassFields(
 		name: string,
 		value: string,
 		property: (typeof properties)[number],
-		isGetter = false,
 	) => {
 		const propertyName = /\?/.test(name) ? `"${name}"` : name;
-		const propertyDeclaration = isGetter
-			? `@LiquidObject.property() get ${propertyName}() { return ${value}; }`
-			: `@LiquidObject.property() ${propertyName} = ${value};`;
+		const propertyDeclaration = `@LiquidObject.property() get ${propertyName}() { return ${value}; }`;
 
 		return [
 			"/**",
@@ -406,9 +407,7 @@ async function createObjectModuleClassFields(
 				value = `new ${className}()`;
 			}
 
-			classFields.push(
-				createField(fieldName, value, property, isSelfReference),
-			);
+			classFields.push(createField(fieldName, value, property));
 			continue;
 		}
 
@@ -598,8 +597,6 @@ const urls = Iterator.from(
 	.map((href) => new URL(href, "https://shopify.dev"))
 	.toArray();
 
-const results = await Promise.all(
-	urls.filter((url) => url.pathname.endsWith("/cart")).map(main),
-);
+const results = await Promise.all(urls.map(main));
 
 console.log(results);

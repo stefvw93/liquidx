@@ -1,10 +1,13 @@
-import { brand } from "@/_requires-manual-review/objects/brand";
-import { image, Image } from "@/_requires-manual-review/objects/image";
+import { brand } from "@/objects/brand";
+import { Image } from "@/objects/image";
 
 // Test the types
-const testImage: Image = image;
-const previewImage: Image = image.previewImage;
+const image: Image = new Image();
+const previewImage: Image = new Image();
 
-console.log("Brand cover image preview:", String(brand.coverImage.previewImage));
+console.log(
+	"Brand cover image preview:",
+	String(brand.coverImage.previewImage),
+);
 console.log("Direct image preview:", String(image.previewImage));
 console.log("Type test passed!");
