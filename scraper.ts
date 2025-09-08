@@ -275,15 +275,22 @@ async function createObjectModuleClassFields(
 		name: string,
 		value: string,
 		description?: string | null,
-	) =>
-		[
+		isGetter = false,
+	) => {
+		const propertyName = /\?/.test(name) ? `"${name}"` : name;
+		const propertyDeclaration = isGetter
+			? `@LiquidObject.property() get ${propertyName}() { return ${value}; }`
+			: `@LiquidObject.property() ${propertyName} = ${value};`;
+
+		return [
 			"/**",
 			` * ${description?.replaceAll("\n", "\n * ") ?? ""}`,
 			"*/",
-			`@LiquidObject.property() ${/\?/.test(name) ? `"${name}"` : name} = ${value};`,
+			propertyDeclaration,
 		]
 			.filter(Boolean)
 			.join("\n");
+	};
 
 	properties.sort((a, b) => {
 		const fieldNameA = a.detail;
@@ -360,6 +367,12 @@ async function createObjectModuleClassFields(
 			}
 
 			let value: string;
+			let isSelfReference = false;
+
+			// Check if this is a self-reference
+			if (currentObjectName && className === toPascalCase(currentObjectName)) {
+				isSelfReference = true;
+			}
 
 			if (property.isArray) {
 				addImport(imports, "@/util/dictionary", new Set(["LiquidArray"]));
@@ -371,7 +384,7 @@ async function createObjectModuleClassFields(
 				value = `new ${className}()`;
 			}
 
-			classFields.push(createField(fieldName, value, property.description));
+			classFields.push(createField(fieldName, value, property.description, isSelfReference));
 			continue;
 		}
 

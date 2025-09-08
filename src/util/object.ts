@@ -23,74 +23,135 @@ export class LiquidObject {
 		return x != null && typeof x === "object" && LiquidObjectTypeId in x;
 	}
 
-	static property<T extends LiquidObject>() {
+	/** @internal */
+	private static createPropertyToString(
+		instance: LiquidObject,
+		fieldName: string,
+		fieldNameIsNumber: boolean,
+		fieldNameNeedsBrackets: boolean,
+	): string {
+		let path: string;
+
+		if (fieldNameIsNumber) {
+			path = `[${fieldName}]`;
+		} else if (fieldNameNeedsBrackets) {
+			path = `['${fieldName}']`;
+		} else {
+			path = toSnakeCase(fieldName);
+		}
+
+		let current: LiquidObject | undefined = instance;
+
+		while (current) {
+			const segment = current._path ?? current.toString();
+			const delimiter = path.startsWith("[") ? "" : ".";
+			const segmentNeedsBrackets = needsBracketNotation(segment);
+			const segmentIsNumber = isNumber(segment);
+			const suffix = path.endsWith("]") ? "" : ".";
+
+			let nextSegment: string;
+
+			if (segmentIsNumber) {
+				nextSegment = `[${segment}]${suffix}`;
+			} else if (segmentNeedsBrackets) {
+				nextSegment = `['${segment}']${suffix}`;
+			} else {
+				nextSegment = `${toSnakeCase(segment)}${delimiter}`;
+			}
+
+			path = `${nextSegment}${path}`;
+			current = current._parent;
+		}
+
+		return path;
+	}
+
+	/** @internal */
+	private static enhanceWithLiquidObject<T extends LiquidObject>(
+		value: any,
+		parent: LiquidObject,
+		fieldName: string,
+		fieldNameIsNumber: boolean,
+		fieldNameNeedsBrackets: boolean,
+	): T {
+		if (value instanceof LiquidObject) {
+			value._parent = parent;
+			value._path = fieldName;
+		}
+
+		return Object.assign(value as object, {
+			toString: (): string => LiquidObject.createPropertyToString(
+				parent,
+				fieldName,
+				fieldNameIsNumber,
+				fieldNameNeedsBrackets,
+			),
+		}) as T;
+	}
+
+	static property<T extends LiquidObject>(): {
+		(target: any, context: ClassFieldDecoratorContext<LiquidObject, T>): (this: LiquidObject, value: any) => T;
+		(target: any, context: ClassGetterDecoratorContext<LiquidObject, T>): (this: LiquidObject) => T;
+	} {
 		return function decorator(
-			_: undefined,
-			context: ClassFieldDecoratorContext<LiquidObject, T>,
-		) {
-			context.addInitializer(function () {
-				// make the property readonly
-				Object.defineProperty(this, context.name, {
-					value: this[context.name as keyof LiquidObject],
-					writable: false,
-					configurable: false,
+			target: any,
+			context: ClassFieldDecoratorContext<LiquidObject, T> | ClassGetterDecoratorContext<LiquidObject, T>,
+		): any {
+			if (typeof context.name === "symbol") {
+				throw new Error("Symbol is not a valid Liquid property name");
+			}
+
+			const fieldName = context.name;
+			const fieldNameIsNumber = isNumber(fieldName);
+			const fieldNameNeedsBrackets = needsBracketNotation(fieldName);
+
+			// Handle getters differently from regular properties
+			if (context.kind === "getter") {
+				// For getters, we receive the getter function as the target
+				const originalGetter = target;
+				
+				// For getters, we need to wrap the getter function
+				return function (this: LiquidObject): T {
+					// Call the original getter
+					const value = originalGetter.call(this);
+
+					if (!value) return value;
+
+					// If it's a LiquidObject, enhance it with parent/path info and toString
+					if (value instanceof LiquidObject) {
+						return LiquidObject.enhanceWithLiquidObject<T>(
+							value,
+							this,
+							fieldName,
+							fieldNameIsNumber,
+							fieldNameNeedsBrackets,
+						);
+					}
+
+					return value;
+				};
+			} else {
+				// For regular properties, use the original logic
+				context.addInitializer(function () {
+					// make the property readonly
+					Object.defineProperty(this, context.name, {
+						value: this[context.name as keyof LiquidObject],
+						writable: false,
+						configurable: false,
+					});
 				});
-			});
 
-			return function (this: LiquidObject, value: LiquidObject) {
-				if (typeof context.name === "symbol") {
-					throw new Error("Symbol is not a valid Liquid property name");
-				}
-
-				const fieldName = context.name;
-				const fieldNameIsNumber = isNumber(fieldName);
-				const fieldNameNeedsBrackets = needsBracketNotation(fieldName);
-
-				if (value instanceof LiquidObject) {
-					value._parent = this;
-					value._path = fieldName;
-				}
-
-				return Object.assign(value as object, {
-					toString: (): string => {
-						let path: string;
-
-						if (fieldNameIsNumber) {
-							path = `[${fieldName}]`;
-						} else if (fieldNameNeedsBrackets) {
-							path = `['${fieldName}']`;
-						} else {
-							path = toSnakeCase(fieldName);
-						}
-
-						let current: LiquidObject | undefined = this;
-
-						while (current) {
-							const segment = current._path ?? current.toString();
-							const delimiter = path.startsWith("[") ? "" : ".";
-							const segmentNeedsBrackets = needsBracketNotation(segment);
-							const segmentIsNumber = isNumber(segment);
-							const suffix = path.endsWith("]") ? "" : ".";
-
-							let nextSegment: string;
-
-							if (segmentIsNumber) {
-								nextSegment = `[${segment}]${suffix}`;
-							} else if (segmentNeedsBrackets) {
-								nextSegment = `['${segment}']${suffix}`;
-							} else {
-								nextSegment = `${toSnakeCase(segment)}${delimiter}`;
-							}
-
-							path = `${nextSegment}${path}`;
-							current = current._parent;
-						}
-
-						return path;
-					},
-				}) as T;
-			};
-		};
+				return function (this: LiquidObject, value: any) {
+					return LiquidObject.enhanceWithLiquidObject<T>(
+						value,
+						this,
+						fieldName,
+						fieldNameIsNumber,
+						fieldNameNeedsBrackets,
+					);
+				};
+			}
+		} as any;
 	}
 }
 
