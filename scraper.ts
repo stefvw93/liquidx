@@ -154,6 +154,10 @@ async function scrapeObject(url: URL) {
 				`[class^="_PropertyDescription"] .markdown`,
 			)?.innerHTML;
 
+			const deprecated = element.querySelector(
+				`[class^="_PropertyDescription"] [class^="_PropertyDeprecated"]`,
+			)?.innerHTML;
+
 			const arrayOfRegex = /^array of (.+)$/i;
 			const setOfValuesRegex = /^(.+) from a set of values$/i;
 			const arrayMatch = returnType?.match(arrayOfRegex);
@@ -200,6 +204,7 @@ async function scrapeObject(url: URL) {
 				isDictionary,
 				isArray,
 				description: description ? turndown.turndown(description) : description,
+				deprecated: deprecated ? turndown.turndown(deprecated) : deprecated,
 			};
 		})
 		.toArray();
@@ -259,7 +264,9 @@ async function createObjectModule(object: LiquidObjectSpec): Promise<{
 	const jsdoc = [
 		"/**",
 		` * ${object.description?.replaceAll("\n", "\n * ") ?? ""}`,
-		object.deprecated ? ` * @deprecated ${object.deprecated}` : "",
+		object.deprecated
+			? ` * @deprecated ${object.deprecated.replaceAll("\n", "\n * ")}`
+			: "",
 		"*/",
 	].join("\n");
 	const classDeclaration = `export class ${className} extends LiquidObject { ${EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER} }`;
@@ -286,7 +293,7 @@ async function createObjectModuleClassFields(
 	const createField = (
 		name: string,
 		value: string,
-		description?: string | null,
+		property: (typeof properties)[number],
 		isGetter = false,
 	) => {
 		const propertyName = /\?/.test(name) ? `"${name}"` : name;
@@ -296,7 +303,10 @@ async function createObjectModuleClassFields(
 
 		return [
 			"/**",
-			` * ${description?.replaceAll("\n", "\n * ") ?? ""}`,
+			` * ${property.description?.replaceAll("\n", "\n * ") ?? ""}`,
+			property.deprecated
+				? ` * @deprecated ${property.deprecated.replaceAll("\n", "\n * ")}`
+				: "",
 			"*/",
 			propertyDeclaration,
 		]
@@ -339,7 +349,7 @@ async function createObjectModuleClassFields(
 				addImport(imports, "@/util/data", new Set(["DataType", "Primitive"]));
 			}
 
-			classFields.push(createField(fieldName, value, property.description));
+			classFields.push(createField(fieldName, value, property));
 			continue;
 		}
 
@@ -397,7 +407,7 @@ async function createObjectModuleClassFields(
 			}
 
 			classFields.push(
-				createField(fieldName, value, property.description, isSelfReference),
+				createField(fieldName, value, property, isSelfReference),
 			);
 			continue;
 		}
@@ -405,11 +415,7 @@ async function createObjectModuleClassFields(
 		addImport(imports, "@/util/unknown", new Set(["Unknown"]));
 		addImport(imports, "@/util/dictionary", new Set(["Dictionary"]));
 		classFields.push(
-			createField(
-				fieldName,
-				`new Dictionary(() => new Unknown())`,
-				property.description,
-			),
+			createField(fieldName, `new Dictionary(() => new Unknown())`, property),
 		);
 	}
 
@@ -593,7 +599,7 @@ const urls = Iterator.from(
 	.toArray();
 
 const results = await Promise.all(
-	urls.filter((url) => url.pathname.includes("filter_value_display")).map(main),
+	urls.filter((url) => url.pathname.endsWith("/cart")).map(main),
 );
 
 console.log(results);
