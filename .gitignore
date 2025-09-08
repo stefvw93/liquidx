@@ -22,3 +22,6 @@ dist/
 # Logs
 logs/
 *.log
+
+# Codegen
+src/_requires-manual-review/

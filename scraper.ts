@@ -16,8 +16,6 @@ const biomeBinary = path.join(
 );
 
 const turndown = new TurndownService();
-const inputUrl = new URL("https://shopify.dev/docs/api/liquid/objects/cart");
-const inProgress = new Map<string, Promise<any>>();
 
 function upperFirst(str: string): string {
 	if (!str) return "";
@@ -391,6 +389,7 @@ function importsToCode(imports: Imports) {
 		.join("\n");
 }
 
+const inProgress = new Map<string, Promise<any>>();
 const processed = new Map<
 	string,
 	{
@@ -411,60 +410,99 @@ async function main(url: URL): Promise<{
 		throw new Error("Object name is required");
 	}
 
+	// Check if already fully processed
 	if (processed.has(object.name)) {
 		console.log(`${object.name} already processed, skipping...`);
 		// biome-ignore lint/style/noNonNullAssertion: we know the object name exists
 		return processed.get(object.name)!;
 	}
 
-	const {
-		filename,
-		code: moduleCode,
-		imports: moduleImports,
-	} = await createObjectModule(object);
+	// Check if currently being processed (prevents infinite recursion)
+	if (inProgress.has(object.name)) {
+		console.log(
+			`${object.name} is currently being processed, returning placeholder...`,
+		);
+		// Return a placeholder result for circular dependencies
+		const filename = path.join(
+			process.cwd(),
+			"src",
+			MANUAL_REVIEW_DIR,
+			"objects",
+			`${toKebabCase(object.name)}.ts`,
+		);
 
-	const { imports: moduleClassFieldsImports, classFields } =
-		await createObjectModuleClassFields(url, object?.properties);
-
-	const mergedImports = mergeImports(moduleImports, moduleClassFieldsImports);
-
-	const codeWithClassFields = [
-		importsToCode(mergedImports),
-		"\n",
-		moduleCode.replace(
-			EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER,
-			classFields.join("\n\n"),
-		),
-	].join("\n\n");
-
-	const result = spawnSync(
-		biomeBinary,
-		[
-			"check",
-			"--stdin-file-path",
-			"src/module.ts",
-			"--write",
-			"--config-path",
-			path.resolve(process.cwd(), "biome.json"),
-		],
-		{
-			input: codeWithClassFields,
-			encoding: "utf-8",
-		},
-	);
-
-	if (result.status !== 0) {
-		console.log(result.stderr);
-		throw new Error(result.stdout);
+		return {
+			code: `export class ${toPascalCase(object.name)} extends LiquidObject { ${EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER} }`,
+			filename,
+			imports: new Map([["@/util/object", new Set(["LiquidObject"])]]),
+		};
 	}
 
-	// biome-ignore lint/style/noNonNullAssertion: we know the object name exists
-	return processed
-		.set(object.name, {
+	// Mark as in progress
+	const processingPromise = (async () => {
+		const {
+			filename,
+			code: moduleCode,
+			imports: moduleImports,
+		} = await createObjectModule(object);
+
+		const { imports: moduleClassFieldsImports, classFields } =
+			await createObjectModuleClassFields(url, object?.properties);
+
+		const mergedImports = mergeImports(moduleImports, moduleClassFieldsImports);
+
+		const codeWithClassFields = [
+			importsToCode(mergedImports),
+			"\n",
+			moduleCode.replace(
+				EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER,
+				classFields.join("\n\n"),
+			),
+		].join("\n\n");
+
+		const result = spawnSync(
+			biomeBinary,
+			[
+				"check",
+				"--stdin-file-path",
+				"src/module.ts",
+				"--write",
+				"--config-path",
+				path.resolve(process.cwd(), "biome.json"),
+			],
+			{
+				input: codeWithClassFields,
+				encoding: "utf-8",
+			},
+		);
+
+		if (result.status !== 0) {
+			console.log(result.stderr);
+			throw new Error(result.stdout);
+		}
+
+		const finalResult = {
 			...writeFileSyncRecursive(filename, result.stdout),
 			imports: mergedImports,
-		})
-		.get(object.name)!;
+		};
+
+		// Mark as fully processed
+		// biome-ignore lint/style/noNonNullAssertion: we know the object name exists
+		processed.set(object.name!, finalResult);
+
+		return finalResult;
+	})();
+
+	// Store the processing promise
+	inProgress.set(object.name, processingPromise);
+
+	try {
+		const result = await processingPromise;
+		return result;
+	} finally {
+		// Clean up the in-progress tracking
+		inProgress.delete(object.name);
+	}
 }
 
-main(new URL("https://shopify.dev/docs/api/liquid/objects/cart"));
+main(new URL(process.argv[2]));
