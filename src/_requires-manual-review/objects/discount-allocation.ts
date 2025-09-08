@@ -1,9 +1,8 @@
 import { DiscountApplication } from "@/_requires-manual-review/objects/discount-application";
 import { DataType, Primitive } from "@/util/data";
-import { Dictionary, LiquidArray } from "@/util/dictionary";
 import { LiquidObject } from "@/util/object";
 
-class DiscountAllocation extends LiquidObject {
+export class DiscountAllocation extends LiquidObject {
 	/**
 	 * The amount that the item is discounted by in the currency's subunit.
 	 */

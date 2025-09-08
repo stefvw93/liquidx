@@ -1,8 +1,7 @@
 import { DataType, Primitive } from "@/util/data";
-import { Dictionary, LiquidArray } from "@/util/dictionary";
 import { LiquidObject } from "@/util/object";
 
-class DiscountApplication extends LiquidObject {
+export class DiscountApplication extends LiquidObject {
 	/**
 	 * The selection method for line items or shipping lines to be discounted.
 	 */

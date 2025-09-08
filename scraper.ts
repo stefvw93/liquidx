@@ -1,10 +1,13 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
-import path from "node:path";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path, { extname } from "node:path";
 import { JSDOM, VirtualConsole } from "jsdom";
 import TurndownService from "turndown";
 import { Primitive } from "@/util/data";
+
+const MANUAL_REVIEW_DIR = "_requires-manual-review";
+const EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER = "/** empty liquid object */";
+const PATTERN_IMPORTS = /import\s*{\s*([^}]+)}\s*from\s*['"]([^'"]+)['"]/g;
 
 const biomeBinary = path.join(
 	process.cwd(),
@@ -44,7 +47,13 @@ function toKebabCase(str: string, lower = true): string {
 		.join("-");
 }
 
-function writeFileSyncRecursive(filename: string, content: string) {
+function writeFileSyncRecursive(
+	filename: string,
+	content: string,
+): {
+	code: string;
+	filename: string;
+} {
 	// -- normalize path separator to '/' instead of path.sep,
 	// -- as / works in node for Windows as well, and mixed \\ and / can appear in the path
 	let filepath = filename.replace(/\\/g, "/");
@@ -74,7 +83,16 @@ function writeFileSyncRecursive(filename: string, content: string) {
 
 	// -- write file
 	writeFileSync(root + filepath, content, "utf-8");
+
+	return { filename: root + filepath, code: content };
 }
+
+/**
+ * A map of import paths to their corresponding imports
+ * e.g. `{ "@/util/data": Set<"DataType", "Primitive"> }`
+ */
+type Imports = Map<string, Set<string>>;
+type LiquidObjectSpec = Awaited<ReturnType<typeof scrapeObject>>;
 
 async function scrapeObject(url: URL) {
 	if (!url.pathname.startsWith("/docs/api/liquid/objects")) {
@@ -107,11 +125,13 @@ async function scrapeObject(url: URL) {
 			const returnType = element.querySelector(
 				`[class^="_ReturnType"]`,
 			)?.textContent;
-			const returnTypeDocLink = (
+
+			let returnTypeDocLink = (
 				element.querySelector(
 					`[class^="_ReturnType"] a[class^="_Link"]`,
 				) as HTMLAnchorElement | null
 			)?.href;
+
 			const description = element.querySelector(
 				`[class^="_PropertyDescription"] .markdown`,
 			)?.innerHTML;
@@ -132,6 +152,19 @@ async function scrapeObject(url: URL) {
 				actualReturnType = setOfValuesMatch?.[1];
 			}
 
+			// handle some known incomplete documentation
+			if (!actualReturnType) {
+				if (detail === "currency") {
+					actualReturnType = "currency";
+					returnTypeDocLink = "/docs/api/liquid/objects/currency";
+				}
+
+				if (detail === "metafields") {
+					actualReturnType = "metafields";
+					returnTypeDocLink = "/docs/api/liquid/objects/metafield";
+				}
+			}
+
 			return {
 				detail,
 				returnType: actualReturnType,
@@ -146,155 +179,292 @@ async function scrapeObject(url: URL) {
 	return { name, description, properties };
 }
 
-async function createObjectModule(url: URL) {
-	const object = await scrapeObject(url);
-
+async function createObjectModule(object: LiquidObjectSpec): Promise<{
+	code: string;
+	filename: string;
+	imports: Imports;
+}> {
 	if (!object?.name) {
-		console.error(`${url} is not a valid object URL!`);
-		return;
+		throw new Error("Object name is required");
 	}
 
-	const imports = new Set([
-		`import { LiquidObject } from "@/util/object";`,
-		`import { Dictionary, LiquidArray } from "@/util/dictionary";`,
-		`import { DataType, Primitive } from "@/util/data"`,
+	console.log(`Creating ${object.name}...`);
+
+	const imports: Imports = new Map([
+		["@/util/object", new Set(["LiquidObject"])],
 	]);
 
-	const classFields: string[] = [];
+	const filename = path.join(
+		process.cwd(),
+		"src",
+		MANUAL_REVIEW_DIR,
+		"objects",
+		`${toKebabCase(object.name)}.ts`,
+	);
 
-	for (const [index, property] of object.properties.entries()) {
+	const exists = existsSync(filename);
+
+	if (exists) {
+		console.log(
+			`${filename.split("src/_requires-manual-review/")[1]} already exists, skipping...`,
+		);
+
+		let code = readFileSync(filename, "utf-8");
+		const importMatches = code.matchAll(PATTERN_IMPORTS);
+
+		for (const match of importMatches) {
+			const importNames = match[1].split(",").map((name) => name.trim());
+			const importPath = match[2];
+			addImport(imports, importPath, new Set(importNames));
+		}
+
+		code = code.replace(PATTERN_IMPORTS, "");
+
+		return {
+			imports,
+			code,
+			filename,
+		};
+	}
+
+	const className = toPascalCase(object.name);
+	const classDeclaration = `export class ${className} extends LiquidObject { ${EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER} }`;
+	const defaultInstance = `export const ${toCamelCase(object.name)} = new ${className}();`;
+	const code = [classDeclaration, defaultInstance].join("\n\n");
+
+	writeFileSyncRecursive(filename, code);
+
+	return {
+		imports,
+		code,
+		filename,
+	};
+}
+
+async function createObjectModuleClassFields(
+	sourceUrl: URL,
+	properties: NonNullable<LiquidObjectSpec>["properties"] = [],
+) {
+	const classFields: string[] = [];
+	const imports: Imports = new Map();
+
+	const createField = (
+		name: string,
+		value: string,
+		description?: string | null,
+	) =>
+		[
+			"/**",
+			` * ${description?.replaceAll("\n", "\n * ") ?? ""}`,
+			"*/",
+			`@LiquidObject.property() ${/\?/.test(name) ? `"${name}"` : name} = ${value};`,
+		]
+			.filter(Boolean)
+			.join("\n");
+
+	properties.sort((a, b) => {
+		const fieldNameA = a.detail;
+		const fieldNameB = b.detail;
+		return fieldNameA?.localeCompare(fieldNameB ?? "") ?? 0;
+	});
+
+	for (const property of properties) {
 		if (!property.detail) {
-			console.error(`${property.detail} is invalid!`);
+			classFields.push(
+				`/** "${property.detail || "empty detail"}" is invalid! */\n${JSON.stringify(property, null, 2)}`,
+			);
+
 			continue;
 		}
 
-		let fieldName = lowerFirst(toPascalCase(property.detail));
-		let value = `(() => { throw new Error("Unknown type for '${property.detail}'") })()`;
+		const fieldName = toCamelCase(property.detail);
 
-		if (/\?/.test(fieldName)) {
-			fieldName = `"${fieldName}"`;
-		}
-
+		// property should be a primitive
 		if (property.returnType && property.returnType in Primitive) {
-			value = `new DataType(Primitive.${property.returnType})`;
-		} else if (
-			property.isDictionary &&
-			!property.returnType &&
-			property.detail === "metafields"
-		) {
-			imports.add(`import { Metafield } from "@/objects/metafield"`);
-			value = `new Dictionary(() => new Metafield())`;
-		} else if (property.isDictionary && !property.returnType) {
-			value = `new Dictionary(() => { throw new Error("Unknown dictionary type for '${property.detail}'") })`;
-		} else if (property.returnType) {
-			console.error("MUST BE AN OBJECT WE SHOULD CREATE OR HAVE", property);
-			const exists = existsSync(
-				path.join(
-					process.cwd(),
-					"src",
-					"objects",
-					toKebabCase(property.returnType),
-				),
-			);
+			let value: string;
 
-			const existsUnstable = existsSync(
-				path.join(
-					process.cwd(),
-					"src",
-					"_requires-manual-review",
-					"objects",
-					toKebabCase(property.returnType),
-				),
-			);
+			if (property.isArray) {
+				value = `new LiquidArray(() => new DataType(Primitive.${property.returnType}))`;
 
-			if (!exists && !existsUnstable && property.returnTypeDocLink) {
-				console.warn(`${property.returnType} does not exist!`);
-				console.log(
-					`Creating new LiquidObject for "${property.returnType}"...`,
-				);
-
-				const url = new URL(property.returnTypeDocLink, inputUrl);
-
-				if (inProgress.has(url.toString())) {
-					console.log(`Waiting for promise... ${url}`);
-					await inProgress.get(url.toString());
-				} else {
-					console.log("Creating promise...");
-					const promise = createObjectModule(url).then(() => {
-						inProgress.delete(url.toString());
-					});
-					inProgress.set(url.toString(), promise);
-					await promise;
-				}
-
-				console.log("promise result", url.toString());
-				console.log(
-					"add import",
-					`import { ${toPascalCase(property.returnType)} } from "@/_requires-manual-review/objects/${toKebabCase(property.returnType)}"`,
-				);
-				imports.add(
-					`import { ${toPascalCase(property.returnType)} } from "@/_requires-manual-review/objects/${toKebabCase(property.returnType)}"`,
-				);
-			} else if (exists) {
-				imports.add(
-					`import { ${toPascalCase(property.returnType)} } from "@/objects/${toKebabCase(property.returnType)}"`,
-				);
-			} else if (existsUnstable) {
-				imports.add(
-					`import { ${toPascalCase(property.returnType)} } from "@/_requires-manual-review/objects/${toKebabCase(property.returnType)}"`,
-				);
+				addImport(imports, "@/util/dictionary", new Set(["LiquidArray"]));
+				addImport(imports, "@/util/data", new Set(["DataType", "Primitive"]));
+			} else if (property.isDictionary) {
+				value = `new Dictionary(() => new DataType(Primitive.${property.returnType}))`;
+				addImport(imports, "@/util/dictionary", new Set(["Dictionary"]));
+				addImport(imports, "@/util/data", new Set(["DataType", "Primitive"]));
 			} else {
-				console.error(property);
-				throw new Error(`Could not process ${property.detail}`);
+				value = `new DataType(Primitive.${property.returnType})`;
+				addImport(imports, "@/util/data", new Set(["DataType", "Primitive"]));
 			}
-		} else {
-			console.error(property);
-			throw new Error(`Could not process ${property.detail}`);
+
+			classFields.push(createField(fieldName, value, property.description));
+			continue;
 		}
 
-		const code = `/**
-			 * ${property.description}
-			 */
-			@LiquidObject.property() ${fieldName} = ${value};
-			`;
+		// property should be an object
+		if (property.returnType && property.returnTypeDocLink) {
+			const url = new URL(property.returnTypeDocLink, sourceUrl);
+			if (!url.pathname.startsWith("/docs/api/liquid/objects")) {
+				throw new Error(`${url} is not a valid object URL!`);
+			}
 
-		classFields.push(code);
+			// const object = await scrapeObject(url);
+			// const { code, filename } = await createObjectModule(object);
+
+			const { code, filename } = await main(url);
+
+			const matchClassName = code.match(
+				/export class ([A-Z].+) extends LiquidObject/,
+			);
+
+			const className = matchClassName?.[1];
+
+			if (!className) {
+				throw new Error(`Could not find class name in ${filename}`);
+			}
+
+			const relativePath = filename.split("src/")[1];
+			const importPath = `@/${relativePath.replace(extname(relativePath), "")}`;
+			addImport(imports, importPath, new Set([className]));
+
+			let value: string;
+
+			if (property.isArray) {
+				addImport(imports, "@/util/dictionary", new Set(["LiquidArray"]));
+				value = `new LiquidArray(() => new ${className}())`;
+			} else if (property.isDictionary) {
+				addImport(imports, "@/util/dictionary", new Set(["Dictionary"]));
+				value = `new Dictionary(() => new ${className}())`;
+			} else {
+				value = `new ${className}()`;
+			}
+
+			classFields.push(createField(fieldName, value, property.description));
+			continue;
+		}
+
+		addImport(imports, "@/util/unknown", new Set(["Unknown"]));
+		addImport(imports, "@/util/dictionary", new Set(["Dictionary"]));
+		classFields.push(
+			createField(
+				fieldName,
+				`new Dictionary(() => new Unknown())`,
+				property.description,
+			),
+		);
 	}
 
-	const classDeclaration = `class ${toPascalCase(object.name)} extends LiquidObject { ${classFields.join("\n\n")} }`;
-	const defaultInstance = `export const ${lowerFirst(toPascalCase(object.name))} = new ${toPascalCase(object.name)}();`;
+	return { classFields, imports };
+}
 
-	const code = [
-		[...imports].join("\n"),
-		classDeclaration,
-		defaultInstance,
+function addImport(target: Imports, path: string, imports: Set<string>) {
+	if (!target.has(path)) {
+		target.set(path, imports);
+	}
+
+	imports.forEach((name) => {
+		// biome-ignore lint/style/noNonNullAssertion: we know the path exists
+		target.get(path)!.add(name);
+	});
+
+	return target;
+}
+
+function mergeImports(...imports: Imports[]) {
+	const mergedImports: Imports = new Map();
+
+	for (const _import of imports) {
+		for (const [path, importNames] of _import) {
+			addImport(mergedImports, path, importNames);
+		}
+	}
+
+	return mergedImports;
+}
+
+function importsToCode(imports: Imports) {
+	return Array.from(imports)
+		.map(
+			([path, importNames]) =>
+				`import { ${Array.from(importNames).join(", ")} } from "${path}"`,
+		)
+		.join("\n");
+}
+
+const processed = new Map<
+	string,
+	{
+		code: string;
+		filename: string;
+		imports: Imports;
+	}
+>();
+
+async function main(url: URL): Promise<{
+	code: string;
+	filename: string;
+	imports: Imports;
+}> {
+	const object = await scrapeObject(url);
+
+	if (!object?.name) {
+		throw new Error("Object name is required");
+	}
+
+	if (processed.has(object.name)) {
+		console.log(`${object.name} already processed, skipping...`);
+		// biome-ignore lint/style/noNonNullAssertion: we know the object name exists
+		return processed.get(object.name)!;
+	}
+
+	const {
+		filename,
+		code: moduleCode,
+		imports: moduleImports,
+	} = await createObjectModule(object);
+
+	const { imports: moduleClassFieldsImports, classFields } =
+		await createObjectModuleClassFields(url, object?.properties);
+
+	const mergedImports = mergeImports(moduleImports, moduleClassFieldsImports);
+
+	const codeWithClassFields = [
+		importsToCode(mergedImports),
+		"\n",
+		moduleCode.replace(
+			EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER,
+			classFields.join("\n\n"),
+		),
 	].join("\n\n");
 
 	const result = spawnSync(
 		biomeBinary,
-		["check", "--stdin-file-path", "src/module.ts", "--write"],
+		[
+			"check",
+			"--stdin-file-path",
+			"src/module.ts",
+			"--write",
+			"--config-path",
+			path.resolve(process.cwd(), "biome.json"),
+		],
 		{
-			input: code,
+			input: codeWithClassFields,
 			encoding: "utf-8",
 		},
 	);
 
 	if (result.status !== 0) {
-		throw new Error(String(result.output));
+		console.log(result.stderr);
+		throw new Error(result.stdout);
 	}
 
-	writeFileSyncRecursive(
-		path.join(
-			process.cwd(),
-			"src",
-			"_requires-manual-review",
-			"objects",
-			`${toKebabCase(object.name)}.ts`,
-		),
-		result.stdout,
-	);
-
-	return result.stdout;
+	// biome-ignore lint/style/noNonNullAssertion: we know the object name exists
+	return processed
+		.set(object.name, {
+			...writeFileSyncRecursive(filename, result.stdout),
+			imports: mergedImports,
+		})
+		.get(object.name)!;
 }
 
-await createObjectModule(inputUrl);
+main(new URL("https://shopify.dev/docs/api/liquid/objects/cart"));
