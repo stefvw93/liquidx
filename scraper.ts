@@ -505,4 +505,28 @@ async function main(url: URL): Promise<{
 	}
 }
 
-main(new URL(process.argv[2]));
+const html = await fetch(
+	"https://shopify.dev/docs/api/liquid/objects/additional_checkout_buttons",
+).then((res) => res.text());
+
+const dom = (() => {
+	const virtualConsole = new VirtualConsole();
+	virtualConsole.on("error", () => {
+		// No-op to skip console errors.
+	});
+	return new JSDOM(html, { virtualConsole });
+})();
+
+const urls = Iterator.from(
+	dom.window.document.querySelectorAll(
+		"._ExpandableNav_w14dg_51._ExpandableNavOpen_w14dg_103 a",
+	),
+)
+	.map((anchor) => (anchor as HTMLAnchorElement)?.href)
+	.filter((href): href is string => href != null)
+	.map((href) => new URL(href, "https://shopify.dev"))
+	.toArray();
+
+const results = await Promise.all(urls.map(main));
+
+console.log(results);
