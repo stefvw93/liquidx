@@ -17,6 +17,13 @@ const biomeBinary = path.join(
 
 const turndown = new TurndownService();
 
+turndown.addRule("absolute urls", {
+	filter: (node) =>
+		node.tagName === "a" &&
+		!(node as HTMLAnchorElement).href.startsWith("https://shopify.dev"),
+	replacement: (content) => new URL(content, "https://shopify.dev").toString(),
+});
+
 function upperFirst(str: string): string {
 	if (!str) return "";
 	return str.charAt(0).toUpperCase() + str.slice(1);
@@ -52,11 +59,11 @@ function writeFileSyncRecursive(
 	code: string;
 	filename: string;
 } {
-	// -- normalize path separator to '/' instead of path.sep,
-	// -- as / works in node for Windows as well, and mixed \\ and / can appear in the path
+	// normalize path separator to '/' instead of path.sep,
+	// as / works in node for Windows as well, and mixed \\ and / can appear in the path
 	let filepath = filename.replace(/\\/g, "/");
 
-	// -- preparation to allow absolute paths as well
+	// preparation to allow absolute paths as well
 	let root = "";
 	if (filepath[0] === "/") {
 		root = "/";
@@ -66,7 +73,7 @@ function writeFileSyncRecursive(
 		filepath = filepath.slice(3);
 	}
 
-	// -- create folders all the way down
+	// create folders all the way down
 	const folders = filepath.split("/").slice(0, -1); // remove last item, file
 	folders.reduce(
 		(acc, folder) => {
@@ -79,7 +86,7 @@ function writeFileSyncRecursive(
 		root, // first 'acc', important
 	);
 
-	// -- write file
+	// write file
 	writeFileSync(root + filepath, content, "utf-8");
 
 	return { filename: root + filepath, code: content };
@@ -110,8 +117,10 @@ async function scrapeObject(url: URL) {
 
 	const name = dom.window.document.body.querySelector("h1")?.textContent;
 
-	const description =
+	let description =
 		dom.window.document.body.querySelector(`h1 + .markdown`)?.innerHTML;
+
+	description = description ? turndown.turndown(description) : description;
 
 	const properties = Iterator.from(
 		dom.window.document.body.querySelectorAll(`[class^="_ObjectProperty"]`),
@@ -152,13 +161,23 @@ async function scrapeObject(url: URL) {
 
 			// handle some known incomplete documentation
 			if (!actualReturnType) {
+				if (name === "brand" && detail === "colors") {
+					actualReturnType = "brand_color";
+					returnTypeDocLink = "/docs/api/liquid/objects/brand_color";
+				}
+
 				if (detail === "currency") {
 					actualReturnType = "currency";
 					returnTypeDocLink = "/docs/api/liquid/objects/currency";
 				}
 
+				if (detail === "filter_value_display") {
+					actualReturnType = "filter_value_display";
+					returnTypeDocLink = "/docs/api/liquid/objects/filter_value_display";
+				}
+
 				if (detail === "metafields") {
-					actualReturnType = "metafields";
+					actualReturnType = "metafield";
 					returnTypeDocLink = "/docs/api/liquid/objects/metafield";
 				}
 			}
@@ -226,9 +245,14 @@ async function createObjectModule(object: LiquidObjectSpec): Promise<{
 	}
 
 	const className = toPascalCase(object.name);
+	const jsdoc = [
+		"/**",
+		` * ${object.description?.replaceAll("\n", "\n * ") ?? ""}`,
+		"*/",
+	].join("\n");
 	const classDeclaration = `export class ${className} extends LiquidObject { ${EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER} }`;
 	const defaultInstance = `export const ${toCamelCase(object.name)} = new ${className}();`;
-	const code = [classDeclaration, defaultInstance].join("\n\n");
+	const code = [jsdoc, classDeclaration, "\n", defaultInstance].join("\n");
 
 	writeFileSyncRecursive(filename, code);
 
@@ -242,6 +266,7 @@ async function createObjectModule(object: LiquidObjectSpec): Promise<{
 async function createObjectModuleClassFields(
 	sourceUrl: URL,
 	properties: NonNullable<LiquidObjectSpec>["properties"] = [],
+	currentObjectName?: string,
 ) {
 	const classFields: string[] = [];
 	const imports: Imports = new Map();
@@ -323,7 +348,16 @@ async function createObjectModuleClassFields(
 
 			const relativePath = filename.split("src/")[1];
 			const importPath = `@/${relativePath.replace(extname(relativePath), "")}`;
-			addImport(imports, importPath, new Set([className]));
+
+			// Skip if this would be a self-import
+			if (
+				currentObjectName &&
+				toKebabCase(currentObjectName) === toKebabCase(property.returnType)
+			) {
+				// Use the class directly without import for self-reference
+			} else {
+				addImport(imports, importPath, new Set([className]));
+			}
 
 			let value: string;
 
@@ -447,7 +481,11 @@ async function main(url: URL): Promise<{
 		} = await createObjectModule(object);
 
 		const { imports: moduleClassFieldsImports, classFields } =
-			await createObjectModuleClassFields(url, object?.properties);
+			await createObjectModuleClassFields(
+				url,
+				object?.properties,
+				object.name!,
+			);
 
 		const mergedImports = mergeImports(moduleImports, moduleClassFieldsImports);
 
