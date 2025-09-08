@@ -18,10 +18,15 @@ const biomeBinary = path.join(
 const turndown = new TurndownService();
 
 turndown.addRule("absolute urls", {
-	filter: (node) =>
-		node.tagName === "a" &&
-		!(node as HTMLAnchorElement).href.startsWith("https://shopify.dev"),
-	replacement: (content) => new URL(content, "https://shopify.dev").toString(),
+	filter: (node) => {
+		if (node.tagName === "A") {
+			const anchor = node as HTMLAnchorElement;
+			if (anchor.href.startsWith("/")) {
+				anchor.href = new URL(anchor.href, "https://shopify.dev").toString();
+			}
+		}
+		return false;
+	},
 });
 
 function upperFirst(str: string): string {
@@ -122,6 +127,12 @@ async function scrapeObject(url: URL) {
 
 	description = description ? turndown.turndown(description) : description;
 
+	let deprecated = dom.window.document.body.querySelector(
+		'h1 + .markdown + [data-testid="notice-Caution"] [class^="_Heading"] + [class^="_Body"]',
+	)?.innerHTML;
+
+	deprecated = deprecated ? turndown.turndown(deprecated) : deprecated;
+
 	const properties = Iterator.from(
 		dom.window.document.body.querySelectorAll(`[class^="_ObjectProperty"]`),
 	)
@@ -193,7 +204,7 @@ async function scrapeObject(url: URL) {
 		})
 		.toArray();
 
-	return { name, description, properties };
+	return { name, description, properties, deprecated };
 }
 
 async function createObjectModule(object: LiquidObjectSpec): Promise<{
@@ -248,6 +259,7 @@ async function createObjectModule(object: LiquidObjectSpec): Promise<{
 	const jsdoc = [
 		"/**",
 		` * ${object.description?.replaceAll("\n", "\n * ") ?? ""}`,
+		object.deprecated ? ` * @deprecated ${object.deprecated}` : "",
 		"*/",
 	].join("\n");
 	const classDeclaration = `export class ${className} extends LiquidObject { ${EMPTY_LIQUID_OBJECT_FIELDS_PLACEHOLDER} }`;
@@ -384,7 +396,9 @@ async function createObjectModuleClassFields(
 				value = `new ${className}()`;
 			}
 
-			classFields.push(createField(fieldName, value, property.description, isSelfReference));
+			classFields.push(
+				createField(fieldName, value, property.description, isSelfReference),
+			);
 			continue;
 		}
 
@@ -578,6 +592,8 @@ const urls = Iterator.from(
 	.map((href) => new URL(href, "https://shopify.dev"))
 	.toArray();
 
-const results = await Promise.all(urls.map(main));
+const results = await Promise.all(
+	urls.filter((url) => url.pathname.includes("filter_value_display")).map(main),
+);
 
 console.log(results);
