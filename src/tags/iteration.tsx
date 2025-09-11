@@ -1,36 +1,87 @@
 /** @jsxImportSource ~/dist */
-import type { LiquidArray } from "@/util/dictionary";
+import { LiquidArray } from "@/util/dictionary";
+import type { LiquidObject } from "@/util/object";
 import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
+
+export function For<T extends LiquidObject>(props: {
+	array: LiquidArray<T>;
+	children?:
+		| JSXChildNode
+		| ((variable: T, array: LiquidArray<T>) => JSXChildNode);
+}): string;
+
+export function For<Range extends `${number}..${number}`>(props: {
+	array: Range;
+	children?: JSXChildNode | ((variable: "i") => JSXChildNode);
+}): string;
+
+export function For<
+	Type extends string,
+	Variable extends string = "array_item",
+>(props: {
+	array: Type;
+	variable?: Variable;
+	children?: JSXChildNode | ((variable: Variable, array: Type) => JSXChildNode);
+}): string;
 
 /**
  * Renders an expression for every item in an array.
  * You can do a maximum of 50 iterations with a for loop. If you need to iterate over more than 50 items, then use the [paginate tag](https://shopify.dev/docs/api/liquid/tags/paginate) to split the items over multiple pages.
- * @param children - The expression to render for each item in the array.
- * @param variable - The variable to iterate over.
  * @param array - The array to iterate over.
+ * @param variable - The variable to iterate over.
+ * @param children - The expression to render for each item in the array.
  */
-export function For<
-	ArrayType extends LiquidArray,
-	VariableType extends string = "array_item",
->({
-	array,
-	variable,
-	children,
-}: {
-	variable?: VariableType;
-	array: ArrayType;
+export function For(props: {
+	array: string | { toString(): string } | LiquidArray<LiquidObject>;
+	variable?: string;
 	children?:
 		| JSXChildNode
-		| ((variable: VariableType, array: ArrayType) => JSXChildNode);
-}) {
-	const normalizedChildren = [children].flat();
-	const safeVariable = (variable || "array_item") as VariableType;
-	const renderedChildren =
-		normalizedChildren[0] instanceof Function
-			? normalizedChildren[0](safeVariable, array)
-			: normalizedChildren;
+		| ((
+				variable: string | LiquidObject,
+				array?: string | { toString(): string } | LiquidArray<LiquidObject>,
+		  ) => JSXChildNode);
+}): string {
+	const normalizedChildren = [props.children].flat();
+	let tag = "{% for ";
 
-	return `{% for ${safeVariable} in ${array} %}${renderedChildren ?? ""}{% endfor %}`;
+	// handle liquid object
+	if (props.array instanceof LiquidArray) {
+		const renderedChildren =
+			normalizedChildren[0] instanceof Function
+				? normalizedChildren[0](props.array.type, props.array)
+				: normalizedChildren;
+
+		tag += `${props.array.type} in ${props.array} %}`;
+		tag += `${renderedChildren ?? ""}`;
+	}
+
+	// handle range pattern
+	else if (/^[0-9]+\.\.[0-9]+$/.test(String(props.array))) {
+		const renderedChildren =
+			normalizedChildren[0] instanceof Function
+				? normalizedChildren[0]("i")
+				: normalizedChildren;
+
+		tag += `i in (${props.array}) %}`;
+		tag += `${renderedChildren ?? ""}`;
+		tag += "{% endfor %}";
+		return tag;
+	}
+
+	// handle custom
+	else {
+		const variable = props.variable || "array_item";
+		const renderedChildren =
+			normalizedChildren[0] instanceof Function
+				? normalizedChildren[0](variable, props.array)
+				: normalizedChildren;
+
+		tag += `${variable} in ${props.array} %}`;
+		tag += `${renderedChildren ?? ""}`;
+	}
+
+	tag += "{% endfor %}";
+	return tag;
 }
 
 /**

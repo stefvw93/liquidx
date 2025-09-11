@@ -17,9 +17,11 @@ describe("Util/Dictionary", () => {
 
 		test("dictionary proxy", () => {
 			class Test extends LiquidObject {
-				@LiquidObject.property() "some-dict" = new Dictionary(
-					() => new Dictionary(() => new DataType(Primitive.string)),
-				);
+				@LiquidObject.property() get "some-dict"() {
+					return new Dictionary(
+						() => new Dictionary(() => new DataType(Primitive.string)),
+					);
+				}
 			}
 
 			strictEqual(
@@ -41,9 +43,9 @@ describe("Util/Dictionary", () => {
 
 		test("array proxy", () => {
 			class Test extends LiquidObject {
-				@LiquidObject.property() "some-array" = new LiquidArray(
-					() => new DataType(Primitive.string),
-				);
+				@LiquidObject.property() get "some-array"() {
+					return new LiquidArray(() => new DataType(Primitive.string));
+				}
 			}
 
 			strictEqual(String(new Test()["some-array"][0]), "test['some-array'][0]");
@@ -51,9 +53,9 @@ describe("Util/Dictionary", () => {
 
 		test("array total count", () => {
 			class Test extends LiquidObject {
-				@LiquidObject.property() "some-array" = new LiquidArray(
-					() => new DataType(Primitive.string),
-				);
+				@LiquidObject.property() get "some-array"() {
+					return new LiquidArray(() => new DataType(Primitive.string));
+				}
 			}
 
 			const totalCount = new Test()["some-array"].totalCount;

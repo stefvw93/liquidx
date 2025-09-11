@@ -59,4 +59,8 @@ export class DataType<T extends Primitive> extends LiquidObject {
 	constructor(public readonly type: T) {
 		super();
 	}
+
+	toString() {
+		return `{% liquid echo 'DataType:${this.type}' %}`;
+	}
 }

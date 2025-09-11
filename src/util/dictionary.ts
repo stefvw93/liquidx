@@ -3,7 +3,7 @@ import { LiquidObject } from "./object";
 
 function createDictionary(isArray?: boolean) {
 	return class Dictionary<T extends LiquidObject> extends LiquidObject {
-		constructor(type: () => T) {
+		constructor(private readonly _type: () => T) {
 			super();
 
 			// biome-ignore lint/correctness/noConstructorReturn: need some meta programming here
@@ -26,7 +26,7 @@ function createDictionary(isArray?: boolean) {
 					const value =
 						isArray && property === "totalCount"
 							? decoratorImpl(new DataType(Primitive.number))
-							: decoratorImpl(type());
+							: decoratorImpl(_type());
 
 					Object.defineProperty(target, property, {
 						value,
@@ -38,6 +38,10 @@ function createDictionary(isArray?: boolean) {
 				},
 			});
 		}
+
+		get type() {
+			return this._type();
+		}
 	};
 }
 
@@ -46,18 +50,19 @@ const Dictionary = createDictionary() as new <T>(
 	type: () => T,
 ) => LiquidObject & {
 	[property: string]: T;
+	type: T;
 };
 
-type LiquidArray<T> = LiquidObject & {
+type LiquidArray<T extends LiquidObject> = LiquidObject & {
 	[property: number]: T;
-};
-
-/** @internal */
-const LiquidArray = createDictionary(true) as unknown as new <T>(
-	type: () => T,
-) => LiquidObject & {
-	[property: number]: T;
+	type: T;
 	totalCount: DataType<Primitive.number>;
 };
+
+const LiquidArray = createDictionary(true) as unknown as new <
+	T extends LiquidObject,
+>(
+	type: () => T,
+) => LiquidArray<T>;
 
 export { Dictionary, LiquidArray };
