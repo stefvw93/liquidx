@@ -20,7 +20,6 @@
 		"jsxImportSource": "~",
 
 		"noUncheckedIndexedAccess": false,
-		"exactOptionalPropertyTypes": true,
 		"noImplicitReturns": true,
 		"strict": true,
 		"verbatimModuleSyntax": true,

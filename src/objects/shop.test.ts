@@ -1,0 +1,45 @@
+import { strictEqual } from "node:assert";
+import { describe, test } from "node:test";
+import { shop } from "./shop";
+
+describe("Objects/shop", () => {
+	test("shop properties", () => {
+		strictEqual(String(shop), "shop");
+		strictEqual(String(shop.acceptsGiftCards), "shop.accepts_gift_cards");
+		strictEqual(String(shop.address), "shop.address");
+		strictEqual(String(shop.brand), "shop.brand");
+		strictEqual(String(shop.collectionsCount), "shop.collections_count");
+		strictEqual(String(shop.currency), "shop.currency");
+		strictEqual(String(shop.customerAccountsEnabled), "shop.customer_accounts_enabled");
+		strictEqual(String(shop.customerAccountsOptional), "shop.customer_accounts_optional");
+		strictEqual(String(shop.description), "shop.description");
+		strictEqual(String(shop.domain), "shop.domain");
+		strictEqual(String(shop.email), "shop.email");
+		strictEqual(String(shop.enabledCurrencies), "shop.enabled_currencies");
+		strictEqual(String(shop.enabledLocales), "shop.enabled_locales");
+		strictEqual(String(shop.enabledPaymentTypes), "shop.enabled_payment_types");
+		strictEqual(String(shop.id), "shop.id");
+		strictEqual(String(shop.locale), "shop.locale");
+		strictEqual(String(shop.metafields), "shop.metafields");
+		strictEqual(String(shop.metaobjects), "shop.metaobjects");
+		strictEqual(String(shop.moneyFormat), "shop.money_format");
+		strictEqual(String(shop.moneyWithCurrencyFormat), "shop.money_with_currency_format");
+		strictEqual(String(shop.name), "shop.name");
+		strictEqual(String(shop.passwordMessage), "shop.password_message");
+		strictEqual(String(shop.permanentDomain), "shop.permanent_domain");
+		strictEqual(String(shop.phone), "shop.phone");
+		strictEqual(String(shop.policies), "shop.policies");
+		strictEqual(String(shop.privacyPolicy), "shop.privacy_policy");
+		strictEqual(String(shop.productsCount), "shop.products_count");
+		strictEqual(String(shop.publishedLocales), "shop.published_locales");
+		strictEqual(String(shop.refundPolicy), "shop.refund_policy");
+		strictEqual(String(shop.secureUrl), "shop.secure_url");
+		strictEqual(String(shop.shippingPolicy), "shop.shipping_policy");
+		strictEqual(String(shop.subscriptionPolicy), "shop.subscription_policy");
+		strictEqual(String(shop.taxesIncluded), "shop.taxes_included");
+		strictEqual(String(shop.termsOfService), "shop.terms_of_service");
+		strictEqual(String(shop.types), "shop.types");
+		strictEqual(String(shop.url), "shop.url");
+		strictEqual(String(shop.vendors), "shop.vendors");
+	});
+});

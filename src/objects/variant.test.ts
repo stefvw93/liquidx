@@ -1,0 +1,46 @@
+import { strictEqual } from "node:assert";
+import { describe, test } from "node:test";
+import { variant } from "./variant";
+
+describe("Objects/variant", () => {
+	test("variant properties", () => {
+		strictEqual(String(variant), "variant");
+		strictEqual(String(variant.available), "variant.available");
+		strictEqual(String(variant.barcode), "variant.barcode");
+		strictEqual(String(variant.compareAtPrice), "variant.compare_at_price");
+		strictEqual(String(variant.featuredImage), "variant.featured_image");
+		strictEqual(String(variant.featuredMedia), "variant.featured_media");
+		strictEqual(String(variant.id), "variant.id");
+		strictEqual(String(variant.image), "variant.image");
+		strictEqual(String(variant.incoming), "variant.incoming");
+		strictEqual(String(variant.inventoryManagement), "variant.inventory_management");
+		strictEqual(String(variant.inventoryPolicy), "variant.inventory_policy");
+		strictEqual(String(variant.inventoryQuantity), "variant.inventory_quantity");
+		strictEqual(String(variant.matched), "variant.matched");
+		strictEqual(String(variant.metafields), "variant.metafields");
+		strictEqual(String(variant.nextIncomingDate), "variant.next_incoming_date");
+		strictEqual(String(variant.option1), "variant.option1");
+		strictEqual(String(variant.option2), "variant.option2");
+		strictEqual(String(variant.option3), "variant.option3");
+		strictEqual(String(variant.options), "variant.options");
+		strictEqual(String(variant.price), "variant.price");
+		strictEqual(String(variant.product), "variant.product");
+		strictEqual(String(variant.quantityPriceBreaks), "variant.quantity_price_breaks");
+		strictEqual(String(variant.quantityRule), "variant.quantity_rule");
+		strictEqual(String(variant.requiresSellingPlan), "variant.requires_selling_plan");
+		strictEqual(String(variant.requiresShipping), "variant.requires_shipping");
+		strictEqual(String(variant.selected), "variant.selected");
+		strictEqual(String(variant.selectedSellingPlanAllocation), "variant.selected_selling_plan_allocation");
+		strictEqual(String(variant.sellingPlanAllocations), "variant.selling_plan_allocations");
+		strictEqual(String(variant.sku), "variant.sku");
+		strictEqual(String(variant.storeAvailabilities), "variant.store_availabilities");
+		strictEqual(String(variant.taxable), "variant.taxable");
+		strictEqual(String(variant.title), "variant.title");
+		strictEqual(String(variant.unitPrice), "variant.unit_price");
+		strictEqual(String(variant.unitPriceMeasurement), "variant.unit_price_measurement");
+		strictEqual(String(variant.url), "variant.url");
+		strictEqual(String(variant.weight), "variant.weight");
+		strictEqual(String(variant.weightInUnit), "variant.weight_in_unit");
+		strictEqual(String(variant.weightUnit), "variant.weight_unit");
+	});
+});
