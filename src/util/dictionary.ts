@@ -13,22 +13,20 @@ function createDictionary(isArray?: boolean) {
 						return Reflect.get(target, property, receiver);
 					}
 
+					const decoratorContext = {
+						name: property,
+						addInitializer(_: () => void) {},
+					} as ClassFieldDecoratorContext<LiquidObject, LiquidObject>;
+
+					const decoratorImpl = LiquidObject.property()(
+						new LiquidObject(), // placeholder
+						decoratorContext,
+					).bind(target);
+
 					const value =
 						isArray && property === "totalCount"
-							? LiquidObject.property()(undefined, {
-									name: property,
-									addInitializer(_: () => void) {},
-								} as ClassFieldDecoratorContext<
-									LiquidObject,
-									LiquidObject
-								>).bind(target)(new DataType(Primitive.number))
-							: LiquidObject.property()(undefined, {
-									name: property,
-									addInitializer(_: () => void) {},
-								} as ClassFieldDecoratorContext<
-									LiquidObject,
-									LiquidObject
-								>).bind(target)(type());
+							? decoratorImpl(new DataType(Primitive.number))
+							: decoratorImpl(type());
 
 					Object.defineProperty(target, property, {
 						value,

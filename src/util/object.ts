@@ -68,7 +68,7 @@ export class LiquidObject {
 
 	/** @internal */
 	private static enhanceWithLiquidObject<T extends LiquidObject>(
-		value: any,
+		value: T,
 		parent: LiquidObject,
 		fieldName: string,
 		fieldNameIsNumber: boolean,
@@ -80,23 +80,32 @@ export class LiquidObject {
 		}
 
 		return Object.assign(value as object, {
-			toString: (): string => LiquidObject.createPropertyToString(
-				parent,
-				fieldName,
-				fieldNameIsNumber,
-				fieldNameNeedsBrackets,
-			),
+			toString: (): string =>
+				LiquidObject.createPropertyToString(
+					parent,
+					fieldName,
+					fieldNameIsNumber,
+					fieldNameNeedsBrackets,
+				),
 		}) as T;
 	}
 
 	static property<T extends LiquidObject>(): {
-		(target: any, context: ClassFieldDecoratorContext<LiquidObject, T>): (this: LiquidObject, value: any) => T;
-		(target: any, context: ClassGetterDecoratorContext<LiquidObject, T>): (this: LiquidObject) => T;
+		(
+			target: T,
+			context: ClassFieldDecoratorContext<LiquidObject, T>,
+		): (this: LiquidObject, value: T) => T;
+		(
+			target: () => T,
+			context: ClassGetterDecoratorContext<LiquidObject, T>,
+		): (this: LiquidObject) => T;
 	} {
 		return function decorator(
-			target: any,
-			context: ClassFieldDecoratorContext<LiquidObject, T> | ClassGetterDecoratorContext<LiquidObject, T>,
-		): any {
+			target,
+			context:
+				| ClassFieldDecoratorContext<LiquidObject, T>
+				| ClassGetterDecoratorContext<LiquidObject, T>,
+		) {
 			if (typeof context.name === "symbol") {
 				throw new Error("Symbol is not a valid Liquid property name");
 			}
@@ -108,8 +117,8 @@ export class LiquidObject {
 			// Handle getters differently from regular properties
 			if (context.kind === "getter") {
 				// For getters, we receive the getter function as the target
-				const originalGetter = target;
-				
+				const originalGetter = target as () => LiquidObject;
+
 				// For getters, we need to wrap the getter function
 				return function (this: LiquidObject): T {
 					// Call the original getter
@@ -119,8 +128,8 @@ export class LiquidObject {
 
 					// If it's a LiquidObject, enhance it with parent/path info and toString
 					if (value instanceof LiquidObject) {
-						return LiquidObject.enhanceWithLiquidObject<T>(
-							value,
+						return LiquidObject.enhanceWithLiquidObject(
+							value as T,
 							this,
 							fieldName,
 							fieldNameIsNumber,
@@ -130,28 +139,28 @@ export class LiquidObject {
 
 					return value;
 				};
-			} else {
-				// For regular properties, use the original logic
-				context.addInitializer(function () {
-					// make the property readonly
-					Object.defineProperty(this, context.name, {
-						value: this[context.name as keyof LiquidObject],
-						writable: false,
-						configurable: false,
-					});
-				});
-
-				return function (this: LiquidObject, value: any) {
-					return LiquidObject.enhanceWithLiquidObject<T>(
-						value,
-						this,
-						fieldName,
-						fieldNameIsNumber,
-						fieldNameNeedsBrackets,
-					);
-				};
 			}
-		} as any;
+
+			// For proxied dictionary properties, use the class field initializer.
+			context.addInitializer(function () {
+				// make the property readonly
+				Object.defineProperty(this, context.name, {
+					value: this[context.name as keyof LiquidObject],
+					writable: false,
+					configurable: false,
+				});
+			});
+
+			return function (this: LiquidObject, value: T) {
+				return LiquidObject.enhanceWithLiquidObject<T>(
+					value as T,
+					this,
+					fieldName,
+					fieldNameIsNumber,
+					fieldNameNeedsBrackets,
+				);
+			};
+		} as ReturnType<typeof LiquidObject.property<T>>;
 	}
 }
 
