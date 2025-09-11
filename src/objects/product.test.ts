@@ -9,36 +9,72 @@ describe("Objects/product", () => {
 		strictEqual(String(product.category), "product.category");
 		strictEqual(String(product.collections), "product.collections");
 		strictEqual(String(product.compareAtPrice), "product.compare_at_price");
-		strictEqual(String(product.compareAtPriceMax), "product.compare_at_price_max");
-		strictEqual(String(product.compareAtPriceMin), "product.compare_at_price_min");
-		strictEqual(String(product.compareAtPriceVaries), "product.compare_at_price_varies");
+		strictEqual(
+			String(product.compareAtPriceMax),
+			"product.compare_at_price_max",
+		);
+		strictEqual(
+			String(product.compareAtPriceMin),
+			"product.compare_at_price_min",
+		);
+		strictEqual(
+			String(product.compareAtPriceVaries),
+			"product.compare_at_price_varies",
+		);
 		strictEqual(String(product.content), "product.content");
 		strictEqual(String(product.createdAt), "product.created_at");
 		strictEqual(String(product.description), "product.description");
 		strictEqual(String(product.featuredImage), "product.featured_image");
 		strictEqual(String(product.featuredMedia), "product.featured_media");
-		strictEqual(String(product.firstAvailableVariant), "product.first_available_variant");
+		strictEqual(
+			String(product.firstAvailableVariant),
+			"product.first_available_variant",
+		);
 		strictEqual(String(product.handle), "product.handle");
-		strictEqual(String(product.hasOnlyDefaultVariant), "product.has_only_default_variant");
+		strictEqual(
+			String(product.hasOnlyDefaultVariant),
+			"product.has_only_default_variant",
+		);
 		strictEqual(String(product.id), "product.id");
 		strictEqual(String(product.images), "product.images");
 		strictEqual(String(product.media), "product.media");
 		strictEqual(String(product.metafields), "product.metafields");
 		strictEqual(String(product.options), "product.options");
 		strictEqual(String(product.optionsByName), "product.options_by_name");
-		strictEqual(String(product.optionsWithValues), "product.options_with_values");
+		strictEqual(
+			String(product.optionsWithValues),
+			"product.options_with_values",
+		);
 		strictEqual(String(product.price), "product.price");
 		strictEqual(String(product.priceMax), "product.price_max");
 		strictEqual(String(product.priceMin), "product.price_min");
 		strictEqual(String(product.priceVaries), "product.price_varies");
 		strictEqual(String(product.publishedAt), "product.published_at");
-		strictEqual(String(product.requiresSellingPlan), "product.requires_selling_plan");
-		strictEqual(String(product.selectedOrFirstAvailableSellingPlanAllocation), "product.selected_or_first_available_selling_plan_allocation");
-		strictEqual(String(product.selectedOrFirstAvailableVariant), "product.selected_or_first_available_variant");
-		strictEqual(String(product.selectedSellingPlan), "product.selected_selling_plan");
-		strictEqual(String(product.selectedSellingPlanAllocation), "product.selected_selling_plan_allocation");
+		strictEqual(
+			String(product.requiresSellingPlan),
+			"product.requires_selling_plan",
+		);
+		strictEqual(
+			String(product.selectedOrFirstAvailableSellingPlanAllocation),
+			"product.selected_or_first_available_selling_plan_allocation",
+		);
+		strictEqual(
+			String(product.selectedOrFirstAvailableVariant),
+			"product.selected_or_first_available_variant",
+		);
+		strictEqual(
+			String(product.selectedSellingPlan),
+			"product.selected_selling_plan",
+		);
+		strictEqual(
+			String(product.selectedSellingPlanAllocation),
+			"product.selected_selling_plan_allocation",
+		);
 		strictEqual(String(product.selectedVariant), "product.selected_variant");
-		strictEqual(String(product.sellingPlanGroups), "product.selling_plan_groups");
+		strictEqual(
+			String(product.sellingPlanGroups),
+			"product.selling_plan_groups",
+		);
 		strictEqual(String(product.tags), "product.tags");
 		strictEqual(String(product.templateSuffix), "product.template_suffix");
 		strictEqual(String(product.title), "product.title");

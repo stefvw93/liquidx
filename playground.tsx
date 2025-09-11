@@ -3,7 +3,7 @@ import { Image } from "@/objects/image";
 
 // Test the types
 const image: Image = new Image();
-const previewImage: Image = new Image();
+const _previewImage: Image = new Image();
 
 console.log(
 	"Brand cover image preview:",

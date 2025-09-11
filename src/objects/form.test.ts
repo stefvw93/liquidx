@@ -22,7 +22,10 @@ describe("Objects/form", () => {
 		strictEqual(String(form.passwordNeeded), "form.password_needed");
 		strictEqual(String(form.phone), "form.phone");
 		strictEqual(String(form.province), "form.province");
-		strictEqual(String(form.setAsDefaultCheckbox), "form.set_as_default_checkbox");
+		strictEqual(
+			String(form.setAsDefaultCheckbox),
+			"form.set_as_default_checkbox",
+		);
 		strictEqual(String(form.zip), "form.zip");
 	});
 });

@@ -1,4 +1,5 @@
 /** @jsxImportSource ~/dist */
+import type { LiquidArray } from "@/util/dictionary";
 import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 
 /**
@@ -9,7 +10,7 @@ import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
  * @param array - The array to iterate over.
  */
 export function For<
-	ArrayType extends string,
+	ArrayType extends LiquidArray,
 	VariableType extends string = "array_item",
 >({
 	array,

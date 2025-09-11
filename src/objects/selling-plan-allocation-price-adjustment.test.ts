@@ -4,8 +4,17 @@ import { sellingPlanAllocationPriceAdjustment } from "./selling-plan-allocation-
 
 describe("Objects/sellingPlanAllocationPriceAdjustment", () => {
 	test("sellingPlanAllocationPriceAdjustment properties", () => {
-		strictEqual(String(sellingPlanAllocationPriceAdjustment), "selling_plan_allocation_price_adjustment");
-		strictEqual(String(sellingPlanAllocationPriceAdjustment.position), "selling_plan_allocation_price_adjustment.position");
-		strictEqual(String(sellingPlanAllocationPriceAdjustment.price), "selling_plan_allocation_price_adjustment.price");
+		strictEqual(
+			String(sellingPlanAllocationPriceAdjustment),
+			"selling_plan_allocation_price_adjustment",
+		);
+		strictEqual(
+			String(sellingPlanAllocationPriceAdjustment.position),
+			"selling_plan_allocation_price_adjustment.position",
+		);
+		strictEqual(
+			String(sellingPlanAllocationPriceAdjustment.price),
+			"selling_plan_allocation_price_adjustment.price",
+		);
 	});
 });

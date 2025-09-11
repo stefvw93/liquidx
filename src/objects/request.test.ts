@@ -11,6 +11,9 @@ describe("Objects/request", () => {
 		strictEqual(String(request.origin), "request.origin");
 		strictEqual(String(request.pageType), "request.page_type");
 		strictEqual(String(request.path), "request.path");
-		strictEqual(String(request.visualPreviewMode), "request.visual_preview_mode");
+		strictEqual(
+			String(request.visualPreviewMode),
+			"request.visual_preview_mode",
+		);
 	});
 });

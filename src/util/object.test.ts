@@ -1,7 +1,7 @@
 import { throws } from "node:assert";
 import { describe, test } from "node:test";
-import { LiquidObject } from "./object";
 import { DataType, Primitive } from "./data";
+import { LiquidObject } from "./object";
 
 describe("Util/LiquidObject", () => {
 	test("readonly properties", () => {

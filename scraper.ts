@@ -390,11 +390,11 @@ async function createObjectModuleClassFields(
 			}
 
 			let value: string;
-			let isSelfReference = false;
+			let _isSelfReference = false;
 
 			// Check if this is a self-reference
 			if (currentObjectName && className === toPascalCase(currentObjectName)) {
-				isSelfReference = true;
+				_isSelfReference = true;
 			}
 
 			if (property.isArray) {

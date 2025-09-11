@@ -10,8 +10,14 @@ describe("Objects/shop", () => {
 		strictEqual(String(shop.brand), "shop.brand");
 		strictEqual(String(shop.collectionsCount), "shop.collections_count");
 		strictEqual(String(shop.currency), "shop.currency");
-		strictEqual(String(shop.customerAccountsEnabled), "shop.customer_accounts_enabled");
-		strictEqual(String(shop.customerAccountsOptional), "shop.customer_accounts_optional");
+		strictEqual(
+			String(shop.customerAccountsEnabled),
+			"shop.customer_accounts_enabled",
+		);
+		strictEqual(
+			String(shop.customerAccountsOptional),
+			"shop.customer_accounts_optional",
+		);
 		strictEqual(String(shop.description), "shop.description");
 		strictEqual(String(shop.domain), "shop.domain");
 		strictEqual(String(shop.email), "shop.email");
@@ -23,7 +29,10 @@ describe("Objects/shop", () => {
 		strictEqual(String(shop.metafields), "shop.metafields");
 		strictEqual(String(shop.metaobjects), "shop.metaobjects");
 		strictEqual(String(shop.moneyFormat), "shop.money_format");
-		strictEqual(String(shop.moneyWithCurrencyFormat), "shop.money_with_currency_format");
+		strictEqual(
+			String(shop.moneyWithCurrencyFormat),
+			"shop.money_with_currency_format",
+		);
 		strictEqual(String(shop.name), "shop.name");
 		strictEqual(String(shop.passwordMessage), "shop.password_message");
 		strictEqual(String(shop.permanentDomain), "shop.permanent_domain");

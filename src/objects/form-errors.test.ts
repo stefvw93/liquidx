@@ -6,6 +6,9 @@ describe("Objects/formErrors", () => {
 	test("formErrors properties", () => {
 		strictEqual(String(formErrors), "form_errors");
 		strictEqual(String(formErrors.messages), "form_errors.messages");
-		strictEqual(String(formErrors.translatedFields), "form_errors.translated_fields");
+		strictEqual(
+			String(formErrors.translatedFields),
+			"form_errors.translated_fields",
+		);
 	});
 });

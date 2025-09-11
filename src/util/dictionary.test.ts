@@ -1,8 +1,8 @@
 import { strictEqual } from "node:assert";
 import { describe, test } from "node:test";
+import { DataType, Primitive } from "./data";
 import { Dictionary, LiquidArray } from "./dictionary";
 import { LiquidObject } from "./object";
-import { DataType, Primitive } from "./data";
 
 describe("Util/Dictionary", () => {
 	describe("Dictionary", () => {

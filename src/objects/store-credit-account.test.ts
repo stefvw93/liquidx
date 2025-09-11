@@ -5,6 +5,9 @@ import { storeCreditAccount } from "./store-credit-account";
 describe("Objects/storeCreditAccount", () => {
 	test("storeCreditAccount properties", () => {
 		strictEqual(String(storeCreditAccount), "store_credit_account");
-		strictEqual(String(storeCreditAccount.balance), "store_credit_account.balance");
+		strictEqual(
+			String(storeCreditAccount.balance),
+			"store_credit_account.balance",
+		);
 	});
 });

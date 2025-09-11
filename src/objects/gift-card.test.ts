@@ -13,7 +13,10 @@ describe("Objects/giftCard", () => {
 		strictEqual(String(giftCard.expired), "gift_card.expired");
 		strictEqual(String(giftCard.expiresOn), "gift_card.expires_on");
 		strictEqual(String(giftCard.initialValue), "gift_card.initial_value");
-		strictEqual(String(giftCard.lastFourCharacters), "gift_card.last_four_characters");
+		strictEqual(
+			String(giftCard.lastFourCharacters),
+			"gift_card.last_four_characters",
+		);
 		strictEqual(String(giftCard.message), "gift_card.message");
 		strictEqual(String(giftCard.passUrl), "gift_card.pass_url");
 		strictEqual(String(giftCard.product), "gift_card.product");

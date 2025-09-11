@@ -7,6 +7,9 @@ describe("Objects/recommendations", () => {
 		strictEqual(String(recommendations), "recommendations");
 		strictEqual(String(recommendations.intent), "recommendations.intent");
 		strictEqual(String(recommendations.products), "recommendations.products");
-		strictEqual(String(recommendations.productsCount), "recommendations.products_count");
+		strictEqual(
+			String(recommendations.productsCount),
+			"recommendations.products_count",
+		);
 	});
 });

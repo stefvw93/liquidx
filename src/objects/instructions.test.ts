@@ -6,6 +6,9 @@ describe("Objects/instructions", () => {
 	test("instructions properties", () => {
 		strictEqual(String(instructions), "instructions");
 		strictEqual(String(instructions.canRemove), "instructions.can_remove");
-		strictEqual(String(instructions.canUpdateQuantity), "instructions.can_update_quantity");
+		strictEqual(
+			String(instructions.canUpdateQuantity),
+			"instructions.can_update_quantity",
+		);
 	});
 });

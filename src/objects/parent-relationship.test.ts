@@ -5,6 +5,9 @@ import { parentRelationship } from "./parent-relationship";
 describe("Objects/parentRelationship", () => {
 	test("parentRelationship properties", () => {
 		strictEqual(String(parentRelationship), "parent_relationship");
-		strictEqual(String(parentRelationship.parent), "parent_relationship.parent");
+		strictEqual(
+			String(parentRelationship.parent),
+			"parent_relationship.parent",
+		);
 	});
 });

@@ -4,6 +4,9 @@ import { contentForAdditionalCheckoutButtons } from "./content-for-additional-ch
 
 describe("Objects/contentForAdditionalCheckoutButtons", () => {
 	test("contentForAdditionalCheckoutButtons properties", () => {
-		strictEqual(String(contentForAdditionalCheckoutButtons), "content_for_additional_checkout_buttons");
+		strictEqual(
+			String(contentForAdditionalCheckoutButtons),
+			"content_for_additional_checkout_buttons",
+		);
 	});
 });

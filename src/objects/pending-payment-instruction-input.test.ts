@@ -4,8 +4,17 @@ import { pendingPaymentInstructionInput } from "./pending-payment-instruction-in
 
 describe("Objects/pendingPaymentInstructionInput", () => {
 	test("pendingPaymentInstructionInput properties", () => {
-		strictEqual(String(pendingPaymentInstructionInput), "pending_payment_instruction_input");
-		strictEqual(String(pendingPaymentInstructionInput.header), "pending_payment_instruction_input.header");
-		strictEqual(String(pendingPaymentInstructionInput.value), "pending_payment_instruction_input.value");
+		strictEqual(
+			String(pendingPaymentInstructionInput),
+			"pending_payment_instruction_input",
+		);
+		strictEqual(
+			String(pendingPaymentInstructionInput.header),
+			"pending_payment_instruction_input.header",
+		);
+		strictEqual(
+			String(pendingPaymentInstructionInput.value),
+			"pending_payment_instruction_input.value",
+		);
 	});
 });

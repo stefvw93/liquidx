@@ -48,9 +48,7 @@ const Dictionary = createDictionary() as new <T>(
 	[property: string]: T;
 };
 
-type LiquidArray = new <T>(
-	type: () => T,
-) => LiquidObject & {
+type LiquidArray<T> = LiquidObject & {
 	[property: number]: T;
 };
 

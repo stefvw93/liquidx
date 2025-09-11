@@ -5,6 +5,9 @@ import { imagePresentation } from "./image-presentation";
 describe("Objects/imagePresentation", () => {
 	test("imagePresentation properties", () => {
 		strictEqual(String(imagePresentation), "image_presentation");
-		strictEqual(String(imagePresentation.focalPoint), "image_presentation.focal_point");
+		strictEqual(
+			String(imagePresentation.focalPoint),
+			"image_presentation.focal_point",
+		);
 	});
 });

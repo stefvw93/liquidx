@@ -10,12 +10,18 @@ describe("Objects/companyAddress", () => {
 		strictEqual(String(companyAddress.attention), "company_address.attention");
 		strictEqual(String(companyAddress.city), "company_address.city");
 		strictEqual(String(companyAddress.country), "company_address.country");
-		strictEqual(String(companyAddress.countryCode), "company_address.country_code");
+		strictEqual(
+			String(companyAddress.countryCode),
+			"company_address.country_code",
+		);
 		strictEqual(String(companyAddress.firstName), "company_address.first_name");
 		strictEqual(String(companyAddress.id), "company_address.id");
 		strictEqual(String(companyAddress.lastName), "company_address.last_name");
 		strictEqual(String(companyAddress.province), "company_address.province");
-		strictEqual(String(companyAddress.provinceCode), "company_address.province_code");
+		strictEqual(
+			String(companyAddress.provinceCode),
+			"company_address.province_code",
+		);
 		strictEqual(String(companyAddress.street), "company_address.street");
 		strictEqual(String(companyAddress.zip), "company_address.zip");
 	});

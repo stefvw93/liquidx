@@ -6,10 +6,19 @@ describe("Objects/cart", () => {
 	test("cart properties", () => {
 		strictEqual(String(cart), "cart");
 		strictEqual(String(cart.attributes), "cart.attributes");
-		strictEqual(String(cart.cartLevelDiscountApplications), "cart.cart_level_discount_applications");
-		strictEqual(String(cart.checkoutChargeAmount), "cart.checkout_charge_amount");
+		strictEqual(
+			String(cart.cartLevelDiscountApplications),
+			"cart.cart_level_discount_applications",
+		);
+		strictEqual(
+			String(cart.checkoutChargeAmount),
+			"cart.checkout_charge_amount",
+		);
 		strictEqual(String(cart.currency), "cart.currency");
-		strictEqual(String(cart.discountApplications), "cart.discount_applications");
+		strictEqual(
+			String(cart.discountApplications),
+			"cart.discount_applications",
+		);
 		strictEqual(String(cart.discounts), "cart.discounts");
 		strictEqual(String(cart.dutiesIncluded), "cart.duties_included");
 		strictEqual(String(cart.itemCount), "cart.item_count");

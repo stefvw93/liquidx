@@ -9,7 +9,13 @@ describe("Objects/sellingPlanGroup", () => {
 		strictEqual(String(sellingPlanGroup.id), "selling_plan_group.id");
 		strictEqual(String(sellingPlanGroup.name), "selling_plan_group.name");
 		strictEqual(String(sellingPlanGroup.options), "selling_plan_group.options");
-		strictEqual(String(sellingPlanGroup.sellingPlanSelected), "selling_plan_group.selling_plan_selected");
-		strictEqual(String(sellingPlanGroup.sellingPlans), "selling_plan_group.selling_plans");
+		strictEqual(
+			String(sellingPlanGroup.sellingPlanSelected),
+			"selling_plan_group.selling_plan_selected",
+		);
+		strictEqual(
+			String(sellingPlanGroup.sellingPlans),
+			"selling_plan_group.selling_plans",
+		);
 	});
 });
