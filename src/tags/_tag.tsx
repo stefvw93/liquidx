@@ -76,49 +76,44 @@ class Callable<T extends object> extends Function {
 	}
 }
 
+export type LiquidTagParam =
+	| string
+	| readonly [string, string | number | null | undefined]
+	| null
+	| undefined;
+
 export interface LiquidComponent<T extends object = object> {
 	(props: T): JSXNode;
 }
-
 export class LiquidComponent<T extends object = object> extends Callable<T> {
-	open: string;
-	close?: string;
+	#createParams: (props: T) => LiquidTagParam[] = () => [];
+
 	constructor(
-		tagConfig: {
-			tag: LiquidTag;
-			params: (string | readonly [string, string | number] | null)[];
-			delimiter?(
-				index: number,
-				params: (string | readonly [string, string | number])[],
-			): string;
-		},
-		fn: (props: T) => JSXNode = (props) => {
+		public readonly tag: LiquidTag,
+		params: (props: T) => LiquidTagParam[],
+		component: (props: T) => JSXNode = (props) => {
 			return "children" in props ? (props.children as JSXNode) : null;
 		},
 	) {
-		super(fn);
+		super(component);
+		this.#createParams = params;
+	}
 
-		const {
-			tag,
-			params,
-			delimiter = (index, params) => (index === params.length - 1 ? "" : ","),
-		} = tagConfig;
+	open(props: T) {
+		return `{% ${this.tag} ${this.#createParams(props)
+			.map((param, index, array) => {
+				if (param == null) return "";
 
-		const definedParams = params.filter(
-			(e): e is NonNullable<typeof e> => e != null,
-		);
-
-		this.open = `{% ${tag} ${params
-			.filter((e): e is NonNullable<typeof e> => e != null)
-			.map((arg, index) => {
-				if (Array.isArray(arg)) {
-					return `${arg[0]}: ${arg[1]}${delimiter(index, definedParams)}`;
+				if (Array.isArray(param) && !!param[0] && param[1] != null) {
+					return `${param[0]}: ${param[1]}${index === array.length - 1 ? "" : ","}`;
 				}
 
-				return String(arg);
+				return String(param);
 			})
 			.join(" ")} %}`;
+	}
 
-		this.close = LIQUID_VOID_TAGS.includes(tag) ? "" : `{% end${tag} %}`;
+	close() {
+		return LIQUID_VOID_TAGS.includes(this.tag) ? "" : `{% end${this.tag} %}`;
 	}
 }

@@ -98,15 +98,13 @@ export function For(props: {
 	}
 
 	const Component = new LiquidComponent(
-		{
-			tag: LiquidTag.For,
-			params: [
-				`${variableName} in ${array}`,
-				props.limit ? (["limit", props.limit] as const) : null,
-				props.offset ? (["offset", props.offset] as const) : null,
-				props.reversed ? "reversed" : null,
-			],
-		},
+		LiquidTag.For,
+		() => [
+			`${variableName} in ${array}`,
+			["limit", props.limit],
+			["offset", props.offset],
+			props.reversed ? "reversed" : null,
+		],
 		() => children,
 	);
 

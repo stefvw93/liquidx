@@ -98,7 +98,7 @@ export function renderToString(node: JSXNode): string {
 		}
 
 		if (node.type instanceof LiquidComponent) {
-			return `${node.type.open}${renderToString(node.type(node.props))}${node.type.close}`;
+			return `${node.type.open(node.props)}${renderToString(node.type(node.props))}${node.type.close()}`;
 		}
 
 		if (node.type instanceof Function) {
