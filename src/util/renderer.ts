@@ -1,3 +1,4 @@
+import { LiquidComponent } from "@/tags/_tag";
 import { FRAGMENT, type JSXNode } from "~/jsx-runtime";
 
 // biome-ignore lint/suspicious/noControlCharactersInRegex: needed for liquid
@@ -23,7 +24,8 @@ const VOID_ELEMENTS = [
 ];
 
 class InvalidJSXError extends Error {
-	constructor() {
+	constructor(node?: unknown) {
+		console.warn("Invalid JSX", node);
 		super("Invalid JSX");
 	}
 }
@@ -34,7 +36,7 @@ export function renderToString(node: JSXNode): string {
 	}
 
 	if (typeof node === "symbol") {
-		throw new InvalidJSXError();
+		throw new InvalidJSXError(node);
 	}
 
 	if (
@@ -95,14 +97,18 @@ export function renderToString(node: JSXNode): string {
 			}
 		}
 
+		if (node.type instanceof LiquidComponent) {
+			return `${node.type.open}${renderToString(node.type(node.props))}${node.type.close}`;
+		}
+
 		if (node.type instanceof Function) {
 			return renderToString(node.type(node.props));
 		}
 
-		throw new InvalidJSXError();
+		throw new InvalidJSXError(node);
 	}
 
-	throw new InvalidJSXError();
+	throw new InvalidJSXError(node);
 }
 
 export function normalizeChildren(children: JSXNode | JSXNode[]): JSXNode[] {

@@ -1,9 +1,17 @@
 import type * as HTMLTypes from "html-jsx";
+import type { LiquidComponent } from "@/tags/_tag";
 
 export const FRAGMENT = Symbol("liquidx/fragment");
 
-export type JSXType = typeof FRAGMENT | string | ((props: object) => JSXNode);
+export type JSXType =
+	| typeof FRAGMENT
+	| LiquidComponent
+	| string
+	| ((props: object) => JSXNode);
+
 export type JSXNode =
+	// biome-ignore lint/suspicious/noConfusingVoidType: convenient way to represent void nodes
+	| void
 	| null
 	| undefined
 	| string
@@ -42,7 +50,7 @@ declare module "html-jsx" {
 // this introduces our JSX definitions into the global scope
 declare global {
 	namespace JSX {
-		type Element = string;
+		type Element = JSXNode;
 
 		interface IntrinsicElements extends HTMLTypes.IntrinsicElements {
 			[k: string]: unknown;

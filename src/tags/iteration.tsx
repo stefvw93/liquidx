@@ -1,7 +1,8 @@
-/** @jsxImportSource ~/dist */
 import { LiquidArray } from "@/util/dictionary";
 import type { LiquidObject } from "@/util/object";
+import { normalizeChildren } from "@/util/renderer";
 import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
+import { LiquidComponent, LiquidTag } from "./_tag";
 
 export function For<T extends LiquidObject>(props: {
 	array: LiquidArray<T>;
@@ -15,7 +16,7 @@ export function For<T extends LiquidObject>(props: {
 }): string;
 
 export function For<Range extends `${number}..${number}`>(props: {
-	array: Range;
+	range: Range;
 	limit?: number | string;
 	offset?: number | string;
 	reversed?: boolean;
@@ -48,7 +49,8 @@ export function For<
  * @param children - The expression to render for each item in the array.
  */
 export function For(props: {
-	array: string | { toString(): string } | LiquidArray<LiquidObject>;
+	array?: string | { toString(): string } | LiquidArray<LiquidObject>;
+	range?: string;
 	variable?: string;
 	limit?: number | string;
 	offset?: number | string;
@@ -59,54 +61,56 @@ export function For(props: {
 				variable: string | LiquidObject,
 				array?: string | { toString(): string } | LiquidArray<LiquidObject>,
 		  ) => JSXNode);
-}): string {
-	const normalizedChildren = [props.children].flat();
-	let tag = "{% for ";
+}): JSXNode {
+	const normalizedChildren = normalizeChildren(props.children);
+	let array: string;
+	let variableName: string;
+	let children: JSXNode = null;
 
 	// handle liquid object
 	if (props.array instanceof LiquidArray) {
-		const renderedChildren =
+		array = String(props.array);
+		variableName = String(props.array.type);
+		children =
 			normalizedChildren[0] instanceof Function
 				? normalizedChildren[0](props.array.type, props.array)
-				: normalizedChildren;
-
-		tag += `${props.array.type} in ${props.array}`;
-		tag += formatForParams(props);
-		tag += " %}";
-		tag += `${renderedChildren ?? ""}`;
+				: props.children;
 	}
 
 	// handle range pattern
-	else if (/^[0-9]+\.\.[0-9]+$/.test(String(props.array))) {
-		const renderedChildren =
+	else if (props.range) {
+		if (!/^[0-9]+\.\.[0-9]+$/.test(props.range)) {
+			throw new Error(`Invalid range: ${props.range}`);
+		}
+
+		array = `(${props.range})`;
+		variableName = "i";
+		children =
 			normalizedChildren[0] instanceof Function
 				? normalizedChildren[0]("i")
-				: normalizedChildren;
-
-		tag += `i in (${props.array})`;
-		tag += formatForParams(props);
-		tag += " %}";
-		tag += `${renderedChildren ?? ""}`;
-		tag += "{% endfor %}";
-		return tag;
+				: props.children;
 	}
 
 	// handle custom
 	else {
-		const variable = props.variable || "array_item";
-		const renderedChildren =
-			normalizedChildren[0] instanceof Function
-				? normalizedChildren[0](variable, props.array)
-				: normalizedChildren;
-
-		tag += `${variable} in ${props.array}`;
-		tag += formatForParams(props);
-		tag += " %}";
-		tag += `${renderedChildren ?? ""}`;
+		array = String(props.array);
+		variableName = props.variable || "array_item";
 	}
 
-	tag += "{% endfor %}";
-	return tag;
+	const Component = new LiquidComponent(
+		{
+			tag: LiquidTag.For,
+			params: [
+				`${variableName} in ${array}`,
+				props.limit ? (["limit", props.limit] as const) : null,
+				props.offset ? (["offset", props.offset] as const) : null,
+				props.reversed ? "reversed" : null,
+			],
+		},
+		() => children,
+	);
+
+	return <Component />;
 }
 
 /**
