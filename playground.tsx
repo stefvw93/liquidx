@@ -7,8 +7,8 @@ import type { PropsWithChildren } from "~/jsx-runtime";
 
 const Tag = new LiquidComponent(
 	LiquidTag.For,
-	() => ["item in items", ["limit", "10"], "reversed"],
+	(props) => [`${props.item} in items`, ["limit", "10"], "reversed"],
 	(props: PropsWithChildren<{ item: string }>) => props.children,
 );
 
-console.log(renderToString(<Tag>expression</Tag>));
+console.log(renderToString(<Tag item="item">expression</Tag>));
