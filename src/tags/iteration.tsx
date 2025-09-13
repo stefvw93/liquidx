@@ -5,6 +5,9 @@ import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
 
 export function For<T extends LiquidObject>(props: {
 	array: LiquidArray<T>;
+	limit?: number | string;
+	offset?: number | string;
+	reversed?: boolean;
 	children?:
 		| JSXChildNode
 		| ((variable: T, array: LiquidArray<T>) => JSXChildNode);
@@ -12,6 +15,9 @@ export function For<T extends LiquidObject>(props: {
 
 export function For<Range extends `${number}..${number}`>(props: {
 	array: Range;
+	limit?: number | string;
+	offset?: number | string;
+	reversed?: boolean;
 	children?: JSXChildNode | ((variable: "i") => JSXChildNode);
 }): string;
 
@@ -21,6 +27,9 @@ export function For<
 >(props: {
 	array: Type;
 	variable?: Variable;
+	limit?: number | string;
+	offset?: number | string;
+	reversed?: boolean;
 	children?: JSXChildNode | ((variable: Variable, array: Type) => JSXChildNode);
 }): string;
 
@@ -29,11 +38,17 @@ export function For<
  * You can do a maximum of 50 iterations with a for loop. If you need to iterate over more than 50 items, then use the [paginate tag](https://shopify.dev/docs/api/liquid/tags/paginate) to split the items over multiple pages.
  * @param array - The array to iterate over.
  * @param variable - The variable to iterate over.
+ * @param limit - Limits the number of iterations.
+ * @param offset - Starts iteration from a specific 1-based index.
+ * @param reversed - Reverses the iteration order.
  * @param children - The expression to render for each item in the array.
  */
 export function For(props: {
 	array: string | { toString(): string } | LiquidArray<LiquidObject>;
 	variable?: string;
+	limit?: number | string;
+	offset?: number | string;
+	reversed?: boolean;
 	children?:
 		| JSXChildNode
 		| ((
@@ -51,7 +66,9 @@ export function For(props: {
 				? normalizedChildren[0](props.array.type, props.array)
 				: normalizedChildren;
 
-		tag += `${props.array.type} in ${props.array} %}`;
+		tag += `${props.array.type} in ${props.array}`;
+		tag += formatForParams(props);
+		tag += " %}";
 		tag += `${renderedChildren ?? ""}`;
 	}
 
@@ -62,7 +79,9 @@ export function For(props: {
 				? normalizedChildren[0]("i")
 				: normalizedChildren;
 
-		tag += `i in (${props.array}) %}`;
+		tag += `i in (${props.array})`;
+		tag += formatForParams(props);
+		tag += " %}";
 		tag += `${renderedChildren ?? ""}`;
 		tag += "{% endfor %}";
 		return tag;
@@ -76,12 +95,35 @@ export function For(props: {
 				? normalizedChildren[0](variable, props.array)
 				: normalizedChildren;
 
-		tag += `${variable} in ${props.array} %}`;
+		tag += `${variable} in ${props.array}`;
+		tag += formatForParams(props);
+		tag += " %}";
 		tag += `${renderedChildren ?? ""}`;
 	}
 
 	tag += "{% endfor %}";
 	return tag;
+}
+
+/**
+ * Helper function to format for loop parameters
+ */
+function formatForParams(props: {
+	limit?: number | string;
+	offset?: number | string;
+	reversed?: boolean;
+}): string {
+	const params: string[] = [];
+	if (props.limit != null) {
+		params.push(`limit: ${props.limit}`);
+	}
+	if (props.offset != null) {
+		params.push(`offset: ${props.offset}`);
+	}
+	if (props.reversed) {
+		params.push("reversed");
+	}
+	return params.join(", ");
 }
 
 /**

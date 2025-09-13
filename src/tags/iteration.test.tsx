@@ -105,4 +105,194 @@ describe("Tags/Iteration", () => {
 			</TableRow>,
 		);
 	});
+
+	describe("for parameters", () => {
+		describe("limit parameter", () => {
+			test("with numeric limit", async () => {
+				await checkLiquidString(
+					<For array="products" limit={5}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with string variable limit", async () => {
+				await checkLiquidString(
+					<For
+						array="collection.products"
+						limit="section.settings.product_limit"
+					>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with limit on range", async () => {
+				await checkLiquidString(
+					<For array="1..100" limit={10}>
+						{(i) => <Echo>{i}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with limit on custom variable", async () => {
+				await checkLiquidString(
+					<For array="items" variable="product" limit={3}>
+						<Echo>product</Echo>
+					</For>,
+				);
+			});
+		});
+
+		describe("offset parameter", () => {
+			test("with numeric offset", async () => {
+				await checkLiquidString(
+					<For array="products" offset={10}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with string variable offset", async () => {
+				await checkLiquidString(
+					<For array="collection.products" offset="paginate.current_offset">
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with offset on range", async () => {
+				await checkLiquidString(
+					<For array="1..50" offset={5}>
+						{(i) => <Echo>{i}</Echo>}
+					</For>,
+				);
+			});
+		});
+
+		describe("reversed parameter", () => {
+			test("with reversed true", async () => {
+				await checkLiquidString(
+					<For array="products" reversed>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with reversed on range", async () => {
+				await checkLiquidString(
+					<For array="1..10" reversed>
+						{(i) => <Echo>{i}</Echo>}
+					</For>,
+				);
+			});
+
+			test("reversed false should not output reversed", async () => {
+				const result = (
+					<For array="products" reversed={false}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>
+				);
+				// Should not contain "reversed" in the output
+				if (result.includes("reversed")) {
+					throw new Error("reversed=false should not output 'reversed' in tag");
+				}
+				await checkLiquidString(result);
+			});
+		});
+
+		describe("parameter combinations", () => {
+			test("limit and offset together", async () => {
+				await checkLiquidString(
+					<For array="products" limit={10} offset={5}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("limit and reversed together", async () => {
+				await checkLiquidString(
+					<For array="collection.products" limit={20} reversed>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("offset and reversed together", async () => {
+				await checkLiquidString(
+					<For array="items" offset={10} reversed>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("all parameters together", async () => {
+				await checkLiquidString(
+					<For array="products" limit={15} offset={5} reversed>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("all parameters with variables", async () => {
+				await checkLiquidString(
+					<For
+						array="collection.products"
+						limit="settings.limit"
+						offset="settings.offset"
+						reversed
+					>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+		});
+
+		describe("edge cases", () => {
+			test("zero limit", async () => {
+				await checkLiquidString(
+					<For array="products" limit={0}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("zero offset", async () => {
+				await checkLiquidString(
+					<For array="products" offset={0}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("undefined parameters should not appear", async () => {
+				const result = (
+					<For array="products" limit={undefined} offset={undefined}>
+						{(item) => <Echo>{item}</Echo>}
+					</For>
+				);
+				// Should not contain "limit:" or "offset:" in the output
+				if (result.includes("limit:") || result.includes("offset:")) {
+					throw new Error("undefined parameters should not output in tag");
+				}
+				await checkLiquidString(result);
+			});
+
+			test("complex variable reference in limit", async () => {
+				await checkLiquidString(
+					<For array="products" limit="section.blocks[0].settings.count">
+						{(item) => <Echo>{item}</Echo>}
+					</For>,
+				);
+			});
+
+			test("with children as non-function", async () => {
+				await checkLiquidString(
+					<For array="products" limit={3} reversed>
+						<div>Static content</div>
+					</For>,
+				);
+			});
+		});
+	});
 });

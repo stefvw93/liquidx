@@ -24,7 +24,7 @@ export class LiquidObject {
 	}
 
 	/** @internal */
-	private static createPropertyToString(
+	private static propertyToString(
 		instance: LiquidObject,
 		fieldName: string,
 		fieldNameIsNumber: boolean,
@@ -81,7 +81,7 @@ export class LiquidObject {
 
 		return Object.assign(value as object, {
 			toString: (): string =>
-				LiquidObject.createPropertyToString(
+				LiquidObject.propertyToString(
 					parent,
 					fieldName,
 					fieldNameIsNumber,
