@@ -2,6 +2,8 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { check } from "@shopify/theme-check-node";
+import { renderToString } from "@/util/renderer";
+import type { JSXNode } from "~/jsx-runtime";
 
 /**
  * Global theme root path for reuse across tests
@@ -63,14 +65,15 @@ export async function setupTheme(): Promise<string> {
  * @throws Error if theme-check finds issues
  */
 export async function checkLiquidString(
-	liquid: string,
+	liquid: JSXNode,
 	filename = `inline-${crypto.randomUUID()}.liquid`,
 	directory = "snippets",
 ) {
 	const themeRoot = await setupTheme();
 	const filePath = join(themeRoot, directory, filename);
+	const rendered = renderToString(liquid);
 
-	await writeFile(filePath, liquid, {
+	await writeFile(filePath, rendered, {
 		encoding: "utf8",
 		flag: "w",
 	});
@@ -81,7 +84,7 @@ export async function checkLiquidString(
 		throw new Error(`${offenses[0].check}: ${offenses[0].message}`);
 	}
 
-	return { liquid, directory, filename };
+	return { liquid: rendered, directory, filename };
 }
 
 /**

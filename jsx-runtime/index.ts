@@ -1,103 +1,41 @@
 import type * as HTMLTypes from "html-jsx";
 
-// biome-ignore lint/suspicious/noControlCharactersInRegex: needed for liquid
-const ILLEGAL_ATTR_PATTERN = /[ "'>/= \u0000-\u001F\uFDD0-\uFDEF\uFFFF\uFFFE]/;
+export const FRAGMENT = Symbol("liquidx/fragment");
 
-const VOID_ELEMENTS = [
-	"area",
-	"base",
-	"br",
-	"col",
-	"command",
-	"embed",
-	"hr",
-	"img",
-	"input",
-	"keygen",
-	"link",
-	"meta",
-	"param",
-	"source",
-	"track",
-	"wbr",
-];
-
-export type JSXChildNode =
+export type JSXType = typeof FRAGMENT | string | ((props: object) => JSXNode);
+export type JSXNode =
+	| null
+	| undefined
 	| string
 	| number
 	| bigint
-	| Iterable<JSXChildNode>
 	| boolean
-	| null
-	| undefined
-	| { toString(): string };
+	| Iterable<JSXNode>
+	| { toString(): string }
+	| { type: JSXType; props: object };
 
 export type PropsWithChildren<T = object> = T & {
-	children?: JSXChildNode;
+	children?: JSXNode | JSXNode[];
 };
-export type JSXGenericProps = PropsWithChildren<{ [key: string]: unknown }>;
-export type JSXTag = string | ((props: object) => string);
 
 export function jsx(
-	tag: JSXTag,
-	{ children = [], ...props }: JSXGenericProps,
-): string {
-	const normalizedChildren = children ? [children].flat() : [];
-	const renderedChildren = normalizedChildren.join("");
-
-	if (tag === Fragment) {
-		return renderedChildren;
-	}
-
-	if (tag instanceof Function) {
-		return tag({ ...props, children: normalizedChildren });
-	}
-
-	if (typeof tag === "string") {
-		if (VOID_ELEMENTS.includes(tag) && normalizedChildren.length) {
-			throw new Error("Void elements cannot have children.");
-		}
-
-		const attributes = Object.entries(props)
-			.map(([key, value]) => {
-				if (ILLEGAL_ATTR_PATTERN.test(key)) {
-					throw Error(`Illegal attribute name: ${key}`);
-				}
-
-				if (value === true) {
-					return ` ${key}`;
-				}
-
-				if (([null, undefined, false] as unknown[]).includes(value)) {
-					return null;
-				}
-
-				return ` ${key}="${String(value).replace(/"/g, "&quot;")}"`;
-			})
-			.filter(Boolean)
-			.join("");
-
-		if (VOID_ELEMENTS.includes(tag)) {
-			return `<${tag}${attributes}>`;
-		} else {
-			return `<${tag}${attributes}>${renderedChildren}</${tag}>`;
-		}
-	}
-
-	throw new Error(`Invalid JSX`);
+	type: JSXType,
+	props: PropsWithChildren<{ [key: string]: unknown }>,
+): JSXNode {
+	return { type, props };
 }
 
 export const jsxs: typeof jsx = jsx;
 
-export function Fragment({ children }: { children?: JSXChildNode }): string {
-	return jsx("FRAGMENT", { children });
+export function Fragment({ children }: { children?: JSXNode[] }): JSXNode {
+	return jsx(FRAGMENT, { children });
 }
 
 // this declaration allows us to augment JSX interfaces
 declare module "html-jsx" {
 	// biome-ignore lint/correctness/noUnusedVariables: needed for jsx
 	interface DOMAttributes<T> extends JSX.IntrinsicAttributes {
-		children?: JSXChildNode;
+		children?: JSXNode;
 	}
 }
 

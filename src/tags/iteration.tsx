@@ -1,7 +1,7 @@
 /** @jsxImportSource ~/dist */
 import { LiquidArray } from "@/util/dictionary";
 import type { LiquidObject } from "@/util/object";
-import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
+import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
 
 export function For<T extends LiquidObject>(props: {
 	array: LiquidArray<T>;
@@ -9,8 +9,9 @@ export function For<T extends LiquidObject>(props: {
 	offset?: number | string;
 	reversed?: boolean;
 	children?:
-		| JSXChildNode
-		| ((variable: T, array: LiquidArray<T>) => JSXChildNode);
+		| JSXNode
+		| JSXNode[]
+		| ((variable: T, array: LiquidArray<T>) => JSXNode);
 }): string;
 
 export function For<Range extends `${number}..${number}`>(props: {
@@ -18,7 +19,7 @@ export function For<Range extends `${number}..${number}`>(props: {
 	limit?: number | string;
 	offset?: number | string;
 	reversed?: boolean;
-	children?: JSXChildNode | ((variable: "i") => JSXChildNode);
+	children?: JSXNode | JSXNode[] | ((variable: "i") => JSXNode);
 }): string;
 
 export function For<
@@ -30,7 +31,10 @@ export function For<
 	limit?: number | string;
 	offset?: number | string;
 	reversed?: boolean;
-	children?: JSXChildNode | ((variable: Variable, array: Type) => JSXChildNode);
+	children?:
+		| JSXNode
+		| JSXNode[]
+		| ((variable: Variable, array: Type) => JSXNode);
 }): string;
 
 /**
@@ -50,11 +54,11 @@ export function For(props: {
 	offset?: number | string;
 	reversed?: boolean;
 	children?:
-		| JSXChildNode
+		| JSXNode
 		| ((
 				variable: string | LiquidObject,
 				array?: string | { toString(): string } | LiquidArray<LiquidObject>,
-		  ) => JSXChildNode);
+		  ) => JSXNode);
 }): string {
 	const normalizedChildren = [props.children].flat();
 	let tag = "{% for ";
@@ -175,7 +179,7 @@ export function Paginate<ArrayType extends string>({
 }: {
 	array: ArrayType;
 	by: number;
-	children?: JSXChildNode | ((array: ArrayType) => JSXChildNode);
+	children?: JSXNode | ((array: ArrayType) => JSXNode);
 }): string {
 	const normalizedChildren = [children].flat();
 	const renderedChildren =
@@ -200,9 +204,7 @@ export function TableRow<
 }: {
 	variable?: VariableType;
 	array: ArrayType;
-	children?:
-		| JSXChildNode
-		| ((variable: VariableType, array: ArrayType) => JSXChildNode);
+	children?: JSXNode | ((variable: VariableType, array: ArrayType) => JSXNode);
 }) {
 	const normalizedChildren = [children].flat();
 	const safeVariable = (variable || "row_item") as VariableType;

@@ -188,16 +188,16 @@ describe("Tags/Iteration", () => {
 			});
 
 			test("reversed false should not output reversed", async () => {
-				const result = (
+				const { liquid } = await checkLiquidString(
 					<For array="products" reversed={false}>
 						{(item) => <Echo>{item}</Echo>}
-					</For>
+					</For>,
 				);
+
 				// Should not contain "reversed" in the output
-				if (result.includes("reversed")) {
+				if (liquid.includes("reversed")) {
 					throw new Error("reversed=false should not output 'reversed' in tag");
 				}
-				await checkLiquidString(result);
 			});
 		});
 
@@ -266,16 +266,16 @@ describe("Tags/Iteration", () => {
 			});
 
 			test("undefined parameters should not appear", async () => {
-				const result = (
+				const { liquid } = await checkLiquidString(
 					<For array="products" limit={undefined} offset={undefined}>
 						{(item) => <Echo>{item}</Echo>}
-					</For>
+					</For>,
 				);
+
 				// Should not contain "limit:" or "offset:" in the output
-				if (result.includes("limit:") || result.includes("offset:")) {
+				if (liquid.includes("limit:") || liquid.includes("offset:")) {
 					throw new Error("undefined parameters should not output in tag");
 				}
-				await checkLiquidString(result);
 			});
 
 			test("complex variable reference in limit", async () => {
