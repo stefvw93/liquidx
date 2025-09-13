@@ -1,3 +1,13 @@
+import type { Address } from "@/objects/address";
+import type { AllProducts } from "@/objects/all-products";
+import type { Article } from "@/objects/article";
+import type { Collections } from "@/objects/collections";
+import type { Comment } from "@/objects/comment";
+import type { Order } from "@/objects/order";
+import type { Pages } from "@/objects/pages";
+import type { Product } from "@/objects/product";
+import type { Search } from "@/objects/search";
+import type { Variant } from "@/objects/variant";
 import { LiquidArray } from "@/util/dictionary";
 import type { LiquidObject } from "@/util/object";
 import { normalizeChildren } from "@/util/renderer";
@@ -112,51 +122,32 @@ export function For(props: {
 }
 
 /**
- * Helper function to format for loop parameters
- */
-function formatForParams(props: {
-	limit?: number | string;
-	offset?: number | string;
-	reversed?: boolean;
-}): string {
-	const params: string[] = [];
-	if (props.limit != null) {
-		params.push(`limit: ${props.limit}`);
-	}
-	if (props.offset != null) {
-		params.push(`offset: ${props.offset}`);
-	}
-	if (props.reversed) {
-		params.push("reversed");
-	}
-	return params.join(", ");
-}
-
-/**
  * Stops a [for loop](https://shopify.dev/docs/api/liquid/tags/for) from iterating.
  */
-export const Break = () => `{% break %}`;
+export const Break = new LiquidComponent(LiquidTag.Break, () => []);
 
 /**
  * Causes a [for loop](https://shopify.dev/docs/api/liquid/tags/for) to skip to the next iteration.
  */
-export const Continue = () => `{% continue %}`;
+export const Continue = new LiquidComponent<Record<string, never>>(
+	LiquidTag.Continue,
+	() => [],
+);
 
-export function Cycle({
-	children,
-	values,
-}: PropsWithChildren<{ values: string[] | Record<string, string[]> }>) {
-	if (Array.isArray(values)) {
-		return `{% cycle ${values.map((value) => `'${value}'`).join(", ")} %}${children}`;
-	}
-
-	return `{% cycle ${Object.entries(values)
-		.map(
-			([key, value]) =>
-				`'${key}': ${value.map((value) => `'${value}'`).join(", ")}`,
-		)
-		.join(", ")} %}${children}`;
-}
+/**
+ * Loops through a group of strings and outputs them one at a time for each iteration of a [`for` loop](https://shopify.dev/docs/api/liquid/tags/for).
+ *
+ * The `cycle` tag must be used inside a `for` loop.
+ */
+export const Cycle = new LiquidComponent<
+	PropsWithChildren<{ values: string[] | Record<string, string[]> }>
+>(LiquidTag.Cycle, (props) =>
+	Array.isArray(props.values)
+		? props.values
+		: Object.entries(props.values).map(
+				([key, values]) => `'${key}': ${values.join(", ")}`,
+			),
+);
 
 /**
  * Splits an array's items across multiple pages.
@@ -174,46 +165,63 @@ export function Cycle({
  * - collection_list settings
  * - product_list settings
  */
-export function Paginate<ArrayType extends string>({
-	array,
-	by,
-	children,
-}: {
+export function Paginate<
+	ArrayType extends
+		| AllProducts
+		| LiquidArray<Comment>
+		| LiquidArray<Article>
+		| Collections
+		| LiquidArray<Product>
+		| LiquidArray<Address>
+		| LiquidArray<Order>
+		| Pages
+		| LiquidArray<Variant>
+		| Search["results"],
+>(props: {
 	array: ArrayType;
 	by: number;
+	windowSize?: number;
 	children?: JSXNode | ((array: ArrayType) => JSXNode);
-}): string {
-	const normalizedChildren = [children].flat();
-	const renderedChildren =
-		normalizedChildren[0] instanceof Function
-			? normalizedChildren[0](array)
-			: normalizedChildren;
+}): JSXNode {
+	const Component = new LiquidComponent(LiquidTag.Paginate, () => [
+		`${props.array} by ${props.by}`,
+		["window_size", props.windowSize],
+	]);
 
-	return `{% paginate ${array} by ${by} %}${renderedChildren ?? ""}{% endpaginate %}`;
+	const normalizedChildren = normalizeChildren(props.children);
+	const children =
+		normalizedChildren[0] instanceof Function
+			? normalizedChildren[0](props.array)
+			: props.children;
+
+	return <Component>{children}</Component>;
 }
 
 /**
  * Generates HTML table rows for every item in an array.
  * The tablerow tag must be wrapped in HTML <table> and </table> tags.
+ * @todo params & overloads
  */
 export function TableRow<
 	ArrayType extends string,
 	VariableType extends string = "row_item",
->({
-	array,
-	variable,
-	children,
-}: {
+>(props: {
 	variable?: VariableType;
 	array: ArrayType;
 	children?: JSXNode | ((variable: VariableType, array: ArrayType) => JSXNode);
 }) {
-	const normalizedChildren = [children].flat();
-	const safeVariable = (variable || "row_item") as VariableType;
-	const renderedChildren =
+	const normalizedChildren = normalizeChildren(props.children);
+	const variableName = props.variable || "row_item";
+	const children =
 		normalizedChildren[0] instanceof Function
-			? normalizedChildren[0](safeVariable, array)
-			: normalizedChildren;
+			? normalizedChildren[0](variableName, props.array)
+			: props.children;
 
-	return `{% tablerow ${safeVariable} in ${array} %}${renderedChildren ?? ""}{% endtablerow %}`;
+	const Component = new LiquidComponent(
+		LiquidTag.TableRow,
+		() => [`${variableName} in ${props.array}`],
+		() => children,
+	);
+
+	return <Component>{children}</Component>;
 }

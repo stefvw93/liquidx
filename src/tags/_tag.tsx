@@ -4,7 +4,7 @@
 /** biome-ignore-all lint/suspicious/noTsIgnore: - */
 /** biome-ignore-all lint/suspicious/noUnsafeDeclarationMerging: - */
 
-import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
+import type { JSXNode } from "~/jsx-runtime";
 
 export enum LiquidTag {
 	// conditional
@@ -85,6 +85,7 @@ export type LiquidTagParam =
 export interface LiquidComponent<T extends object = object> {
 	(props: T): JSXNode;
 }
+
 export class LiquidComponent<T extends object = object> extends Callable<T> {
 	#createParams: (props: T) => LiquidTagParam[] = () => [];
 

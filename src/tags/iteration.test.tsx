@@ -1,4 +1,6 @@
 import { before, describe, test } from "node:test";
+import { allProducts } from "@/objects/all-products";
+import { collection } from "@/objects/collection";
 import { checkLiquidString, setupTheme } from "~/test-utils/theme-setup";
 import { Else, If } from "./conditional";
 import { Break, Continue, Cycle, For, Paginate, TableRow } from "./iteration";
@@ -80,9 +82,23 @@ describe("Tags/Iteration", () => {
 
 	test("paginate", async () => {
 		await checkLiquidString(
-			<Paginate array="collection.products" by={10}>
+			<Paginate array={collection.products} by={10}>
 				{(array) => (
 					<For array={array}>
+						{(variable, _array) => (
+							<div>
+								<Echo>{variable}</Echo>
+							</div>
+						)}
+					</For>
+				)}
+			</Paginate>,
+		);
+
+		await checkLiquidString(
+			<Paginate array={allProducts} by={10}>
+				{(array) => (
+					<For array={String(array)}>
 						{(variable, _array) => (
 							<div>
 								<Echo>{variable}</Echo>
