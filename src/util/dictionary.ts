@@ -45,7 +45,11 @@ function createDictionary(isArray?: boolean) {
 	};
 }
 
-/** @internal */
+type Dictionary<T extends LiquidObject> = LiquidObject & {
+	[property: string]: T;
+	type: T;
+};
+
 const Dictionary = createDictionary() as new <T>(
 	type: () => T,
 ) => LiquidObject & {

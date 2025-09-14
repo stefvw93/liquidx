@@ -5,12 +5,15 @@ import { Product } from "@/objects/product";
 import { SortOption } from "@/objects/sort-option";
 import { DataType, Primitive } from "@/util/data";
 import { LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
+
+class CollectionProducts extends LiquidArray<Product> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * A [collection](https://help.shopify.com/manual/products/collections) in a store.
-
-*/
+ */
 export class Collection extends LiquidObject {
 	/**
 	 * The total number of products in a collection.
@@ -128,7 +131,7 @@ export class Collection extends LiquidObject {
 	 * All of the products in the collection.
 	 */
 	@LiquidObject.property() get products() {
-		return new LiquidArray(() => new Product());
+		return new CollectionProducts(() => new Product());
 	}
 
 	/**

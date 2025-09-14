@@ -2,13 +2,16 @@ import { Filter } from "@/objects/filter";
 import { SortOption } from "@/objects/sort-option";
 import { DataType, Primitive } from "@/util/data";
 import { Dictionary, LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
 import { Unknown } from "@/util/unknown";
+
+class SearchResults extends Dictionary<Dictionary<Unknown>> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * Information about a storefront search query.
-
-*/
+ */
 export class Search extends LiquidObject {
 	/**
 	 * The default sort order of the search results, which is `relevance`.
@@ -36,7 +39,7 @@ export class Search extends LiquidObject {
 	 * @todo Make it type safe
 	 */
 	@LiquidObject.property() get results() {
-		return new Dictionary(() => new Dictionary(() => new Unknown()));
+		return new SearchResults(() => new Dictionary(() => new Unknown()));
 	}
 
 	/**

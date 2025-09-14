@@ -8,8 +8,8 @@ import type { Pages } from "@/objects/pages";
 import type { Product } from "@/objects/product";
 import type { Search } from "@/objects/search";
 import type { Variant } from "@/objects/variant";
-import { LiquidArray } from "@/util/dictionary";
-import type { LiquidObject } from "@/util/object";
+import { type Dictionary, LiquidArray } from "@/util/dictionary";
+import type { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
 import { normalizeChildren } from "@/util/renderer";
 import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
 import { LiquidComponent, LiquidTag } from "./_tag";
@@ -166,22 +166,22 @@ export const Cycle = new LiquidComponent<
  * - product_list settings
  */
 export function Paginate<
-	ArrayType extends
-		| AllProducts
-		| LiquidArray<Comment>
-		| LiquidArray<Article>
-		| Collections
-		| LiquidArray<Product>
-		| LiquidArray<Address>
-		| LiquidArray<Order>
-		| Pages
-		| LiquidArray<Variant>
-		| Search["results"],
+	ArrayType extends LiquidObject & {
+		[LiquidObjectPaginateTypeId]: unknown;
+	},
 >(props: {
 	array: ArrayType;
 	by: number;
 	windowSize?: number;
-	children?: JSXNode | ((array: ArrayType) => JSXNode);
+	children?:
+		| JSXNode
+		| ((
+				array: ArrayType extends LiquidArray<infer T>
+					? LiquidArray<T>
+					: ArrayType extends Dictionary<infer U>
+						? LiquidArray<U>
+						: never,
+		  ) => JSXNode);
 }): JSXNode {
 	const Component = new LiquidComponent(LiquidTag.Paginate, () => [
 		`${props.array} by ${props.by}`,

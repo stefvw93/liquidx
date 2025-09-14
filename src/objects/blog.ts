@@ -2,12 +2,15 @@ import { Article } from "@/objects/article";
 import { Metafield } from "@/objects/metafield";
 import { DataType, Primitive } from "@/util/data";
 import { LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
+
+class BlogArticles extends LiquidArray<Article> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * Information about a specific [blog](https://help.shopify.com/manual/online-store/blogs/adding-a-blog) in the store.
-
-*/
+ */
 export class Blog extends LiquidObject {
 	/**
 	 * All of the tags on the articles in the blog.
@@ -20,7 +23,7 @@ export class Blog extends LiquidObject {
 	 * The articles in the blog.
 	 */
 	@LiquidObject.property() get articles() {
-		return new LiquidArray(() => new Article());
+		return new BlogArticles(() => new Article());
 	}
 
 	/**

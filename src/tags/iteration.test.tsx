@@ -82,6 +82,20 @@ describe("Tags/Iteration", () => {
 
 	test("paginate", async () => {
 		await checkLiquidString(
+			<Paginate array={allProducts} by={10}>
+				{(array) => (
+					<For array={array}>
+						{(variable, _array) => (
+							<div>
+								<Echo>{variable}</Echo>
+							</div>
+						)}
+					</For>
+				)}
+			</Paginate>,
+		);
+
+		await checkLiquidString(
 			<Paginate array={collection.products} by={10}>
 				{(array) => (
 					<For array={array}>

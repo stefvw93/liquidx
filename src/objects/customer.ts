@@ -6,12 +6,19 @@ import { Order } from "@/objects/order";
 import { StoreCreditAccount } from "@/objects/store-credit-account";
 import { DataType, Primitive } from "@/util/data";
 import { LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
+
+class CustomerAddresses extends LiquidArray<Address> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
+
+class CustomerOrders extends LiquidArray<Order> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * A [customer](https://help.shopify.com/manual/customers) of the store.
-
-*/
+ */
 export class Customer extends LiquidObject {
 	/**
 	 * Returns `true` if the customer accepts marketing. Returns `false` if not.
@@ -24,7 +31,7 @@ export class Customer extends LiquidObject {
 	 * All of the addresses associated with the customer.
 	 */
 	@LiquidObject.property() get addresses() {
-		return new LiquidArray(() => new Address());
+		return new CustomerAddresses(() => new Address());
 	}
 
 	/**
@@ -136,7 +143,7 @@ export class Customer extends LiquidObject {
 	 * All of the orders placed by the customer.
 	 */
 	@LiquidObject.property() get orders() {
-		return new LiquidArray(() => new Order());
+		return new CustomerOrders(() => new Order());
 	}
 
 	/**

@@ -1,6 +1,7 @@
 import { toSnakeCase } from "@/util/snake-case";
 
 export const LiquidObjectTypeId = Symbol("liquidx/object");
+export const LiquidObjectPaginateTypeId = Symbol("liquidx/object/paginate");
 
 export interface LiquidObjectConfig {
 	delimiter(path: string): string;

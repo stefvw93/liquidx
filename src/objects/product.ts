@@ -10,13 +10,16 @@ import { TaxonomyCategory } from "@/objects/taxonomy-category";
 import { Variant } from "@/objects/variant";
 import { DataType, Primitive } from "@/util/data";
 import { Dictionary, LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
 import { Unknown } from "@/util/unknown";
+
+class ProductVariants extends LiquidArray<Variant> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * A [product](https://help.shopify.com/manual/products) in the store.
-
-*/
+ */
 export class Product extends LiquidObject {
 	/**
 	 * Returns `true` if at least one of the variants of the product is available. Returns `false` if not.
@@ -309,7 +312,7 @@ export class Product extends LiquidObject {
 	 * The variants of the product.
 	 */
 	@LiquidObject.property() get variants() {
-		return new LiquidArray(() => new Variant());
+		return new ProductVariants(() => new Variant());
 	}
 
 	/**

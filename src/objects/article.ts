@@ -4,12 +4,15 @@ import { Metafield } from "@/objects/metafield";
 import { User } from "@/objects/user";
 import { DataType, Primitive } from "@/util/data";
 import { Dictionary, LiquidArray } from "@/util/dictionary";
-import { LiquidObject } from "@/util/object";
+import { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
+
+class ArticleComments extends LiquidArray<Comment> {
+	[LiquidObjectPaginateTypeId] = LiquidObjectPaginateTypeId;
+}
 
 /**
  * An article, or [blog post](https://help.shopify.com/manual/online-store/blogs/writing-blogs), in a blog.
-
-*/
+ */
 export class Article extends LiquidObject {
 	/**
 	 * The full name of the author of the article.
@@ -29,7 +32,7 @@ export class Article extends LiquidObject {
 	 * The published comments for the article.
 	 */
 	@LiquidObject.property() get comments() {
-		return new LiquidArray(() => new Comment());
+		return new ArticleComments(() => new Comment());
 	}
 
 	/**
