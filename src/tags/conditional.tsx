@@ -1,21 +1,25 @@
+import type { LiquidObject } from "@/util/object";
 import type { PropsWithChildren } from "~/jsx-runtime";
+import { LiquidComponent, LiquidTag } from "./_tag";
 
 /**
  * Renders a specific expression depending on the value of a specific variable.
  */
-export function Case<T>({
-	children,
-	variable,
-}: PropsWithChildren<{ variable: T }>) {
-	return `{% case ${variable} %}${children}{% endcase %}`;
-}
+export const Case = new LiquidComponent<
+	PropsWithChildren<{ variable: { toString(): string } | LiquidObject }>
+>(
+	LiquidTag.Case,
+	(props) => [["variable", String(props.variable)]],
+	(props) => props.children,
+);
 
-export function When<T extends unknown[]>({
-	children,
-	values,
-}: PropsWithChildren<{ values: T }>) {
-	return `{% when ${values.join(", ")} %}${children}`;
-}
+export const When = new LiquidComponent<
+	PropsWithChildren<{ values: unknown[] }>
+>(
+	LiquidTag.When,
+	(props) => [["values", props.values.join(", ")]],
+	(props) => props.children,
+);
 
 /**
  * Allows you to specify a default expression to execute when no other condition is met.
@@ -24,36 +28,41 @@ export function When<T extends unknown[]>({
  * - if
  * - unless
  */
-export function Else({ children }: PropsWithChildren) {
-	return `{% else %}${children}`;
-}
+export const Else = new LiquidComponent<PropsWithChildren>(
+	LiquidTag.Else,
+	() => [],
+	(props) => props.children,
+);
 
 /**
  * Renders an expression if a specific condition is true.
  */
-export function If({
-	children,
-	condition,
-}: PropsWithChildren<{ condition: unknown }>) {
-	return `{% if ${condition} %}${children}{% endif %}`;
-}
+export const If = new LiquidComponent<
+	PropsWithChildren<{ condition: unknown }>
+>(
+	LiquidTag.If,
+	(props) => [["condition", String(props.condition)]],
+	(props) => props.children,
+);
 
 /**
  * You can use the elsif tag to check for multiple conditions.
  */
-export function Elsif({
-	children,
-	condition,
-}: PropsWithChildren<{ condition: unknown }>) {
-	return `{% elsif ${condition} %}${children}`;
-}
+export const Elsif = new LiquidComponent<
+	PropsWithChildren<{ condition: unknown }>
+>(
+	LiquidTag.ElseIf,
+	(props) => [["condition", String(props.condition)]],
+	(props) => props.children,
+);
 
 /**
  * Renders an expression unless a specific condition is true.
  */
-export function Unless({
-	children,
-	condition,
-}: PropsWithChildren<{ condition: unknown }>) {
-	return `{% unless ${condition} %}${children}{% endunless %}`;
-}
+export const Unless = new LiquidComponent<
+	PropsWithChildren<{ condition: unknown }>
+>(
+	LiquidTag.Unless,
+	(props) => [["condition", String(props.condition)]],
+	(props) => props.children,
+);
