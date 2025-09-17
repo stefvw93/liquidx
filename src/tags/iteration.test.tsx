@@ -127,11 +127,7 @@ describe("Tags/Iteration", () => {
 	test("tablerow", async () => {
 		await checkLiquidString(
 			<TableRow array="collection.products">
-				{(variable, _array) => (
-					<div>
-						<Echo>{variable}</Echo>
-					</div>
-				)}
+				{(variable, _array) => <Echo>{variable}</Echo>}
 			</TableRow>,
 		);
 	});

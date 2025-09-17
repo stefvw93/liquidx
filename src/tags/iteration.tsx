@@ -197,31 +197,104 @@ export function Paginate<
 	return <Component>{children}</Component>;
 }
 
+export function TableRow<T extends LiquidObject>(props: {
+	array: LiquidArray<T>;
+	limit?: number | string;
+	offset?: number | string;
+	cols?: number | string;
+	children?:
+		| JSXNode
+		| JSXNode[]
+		| ((variable: T, array: LiquidArray<T>) => JSXNode);
+}): string;
+
+export function TableRow<Range extends `${number}..${number}`>(props: {
+	range: Range;
+	limit?: number | string;
+	offset?: number | string;
+	cols?: number | string;
+	children?: JSXNode | JSXNode[] | ((variable: "i") => JSXNode);
+}): string;
+
+export function TableRow<
+	Type extends string,
+	Variable extends string = "row",
+>(props: {
+	array: Type;
+	variable?: Variable;
+	limit?: number | string;
+	offset?: number | string;
+	cols?: number | string;
+	children?:
+		| JSXNode
+		| JSXNode[]
+		| ((variable: Variable, array: Type) => JSXNode);
+}): string;
+
 /**
  * Generates HTML table rows for every item in an array.
  * The tablerow tag must be wrapped in HTML <table> and </table> tags.
  * @todo params & overloads
  */
-export function TableRow<
-	ArrayType extends string,
-	VariableType extends string = "row_item",
->(props: {
-	variable?: VariableType;
-	array: ArrayType;
-	children?: JSXNode | ((variable: VariableType, array: ArrayType) => JSXNode);
-}) {
+export function TableRow(props: {
+	array?: string | { toString(): string } | LiquidArray<LiquidObject>;
+	range?: string;
+	variable?: string;
+	limit?: number | string;
+	offset?: number | string;
+	cols?: number | string;
+	children?:
+		| JSXNode
+		| ((
+				variable: string | LiquidObject,
+				array?: string | { toString(): string } | LiquidArray<LiquidObject>,
+		  ) => JSXNode);
+}): JSXNode {
 	const normalizedChildren = normalizeChildren(props.children);
-	const variableName = props.variable || "row_item";
-	const children =
-		normalizedChildren[0] instanceof Function
-			? normalizedChildren[0](variableName, props.array)
-			: props.children;
+	let array: string;
+	let variableName: string;
+	let children: JSXNode = null;
+
+	// handle liquid object
+	if (props.array instanceof LiquidArray) {
+		array = String(props.array);
+		variableName = String(props.array.type);
+		children =
+			normalizedChildren[0] instanceof Function
+				? normalizedChildren[0](props.array.type, props.array)
+				: props.children;
+	}
+
+	// handle range pattern
+	else if (props.range) {
+		if (!/^[0-9]+\.\.[0-9]+$/.test(props.range)) {
+			throw new Error(`Invalid range: ${props.range}`);
+		}
+
+		array = `(${props.range})`;
+		variableName = "i";
+		children =
+			normalizedChildren[0] instanceof Function
+				? normalizedChildren[0]("i")
+				: props.children;
+	}
+
+	// handle custom
+	else {
+		array = String(props.array);
+		variableName = props.variable || "row";
+	}
 
 	const Component = new LiquidComponent(
 		LiquidTag.TableRow,
-		() => [`${variableName} in ${props.array}`],
+		() => [
+			`${variableName} in ${array}`,
+			["cols", props.cols],
+			["limit", props.limit],
+			["offset", props.offset],
+		],
 		() => children,
 	);
 
-	return <Component>{children}</Component>;
+	return <Component />;
 }
