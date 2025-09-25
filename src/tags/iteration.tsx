@@ -262,7 +262,7 @@ export function TableRow(props: {
 	const Component = new LiquidComponent(
 		LiquidTag.TableRow,
 		() => [
-			`${variableName} in ${props.array}`,
+			`${variableName} in ${array}`,
 			["cols", props.cols],
 			["limit", props.limit],
 			["offset", props.offset],
