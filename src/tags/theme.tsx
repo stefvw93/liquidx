@@ -1,4 +1,4 @@
-import type { JSXChildNode, PropsWithChildren } from "~/jsx-runtime";
+import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
 
 /**
  * Creates a designated area in your [theme](https://shopify.dev/themes/architecture) where blocks can be rendered.
@@ -54,7 +54,7 @@ export function JavaScript({ children }: PropsWithChildren) {
 /**
  * Specify which [layout](https://shopify.dev/themes/architecture/layouts) to use.
  */
-export function Layout({ name }: { name?: string }) {
+export function Layout({ name }: { name?: string | null }) {
 	return `{% layout ${name ? `'${name}'` : "none"} %}`;
 }
 
@@ -72,9 +72,7 @@ export function Render<
 	filename: string;
 	variable?: VariableType;
 	array: ArrayType;
-	children?:
-		| JSXChildNode
-		| ((variable: VariableType, array: ArrayType) => JSXChildNode);
+	children?: JSXNode | ((variable: VariableType, array: ArrayType) => JSXNode);
 	[attribute: string]: unknown;
 }): string;
 
@@ -104,7 +102,7 @@ export function Render({
 	 * You can pass a single object to a snippet using the with parameter. You can also supply an optional as parameter to specify a custom name to reference the object inside the snippet. If you don't use the as parameter to specify a custom name, then you can reference the object using the snippet filename.
 	 */
 	with?: string | { object: string; as: string };
-	children?: JSXChildNode | ((variable: string, array: string) => JSXChildNode);
+	children?: JSXNode | ((variable: string, array: string) => JSXNode);
 	[attribute: string]: unknown;
 }) {
 	let tag = `render '${filename}'`;
