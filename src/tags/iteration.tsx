@@ -197,39 +197,24 @@ export function Paginate<
 	return <Component>{children}</Component>;
 }
 
-export function TableRow<T extends LiquidObject>(props: {
-	array: LiquidArray<T>;
-	limit?: number | string;
-	offset?: number | string;
-	cols?: number | string;
-	children?:
-		| JSXNode
-		| JSXNode[]
-		| ((variable: T, array: LiquidArray<T>) => JSXNode);
-}): string;
+export function TableRow<
+	ArrayType extends string,
+	VariableType extends string = "row_item",
+>(props: {
+	array: ArrayType;
+	children?: JSXNode | ((variable: VariableType, array: ArrayType) => JSXNode);
+	cols?: number;
+	limit?: number;
+	offset?: number;
+}): JSXNode;
 
 export function TableRow<Range extends `${number}..${number}`>(props: {
 	range: Range;
-	limit?: number | string;
-	offset?: number | string;
-	cols?: number | string;
-	children?: JSXNode | JSXNode[] | ((variable: "i") => JSXNode);
-}): string;
-
-export function TableRow<
-	Type extends string,
-	Variable extends string = "row",
->(props: {
-	array: Type;
-	variable?: Variable;
-	limit?: number | string;
-	offset?: number | string;
-	cols?: number | string;
-	children?:
-		| JSXNode
-		| JSXNode[]
-		| ((variable: Variable, array: Type) => JSXNode);
-}): string;
+	children?: JSXNode | ((variable: "i") => JSXNode);
+	cols?: number;
+	limit?: number;
+	offset?: number;
+}): JSXNode;
 
 /**
  * Generates HTML table rows for every item in an array.
@@ -238,18 +223,13 @@ export function TableRow<
  */
 export function TableRow(props: {
 	array?: string | { toString(): string } | LiquidArray<LiquidObject>;
-	range?: string;
 	variable?: string;
-	limit?: number | string;
-	offset?: number | string;
-	cols?: number | string;
-	children?:
-		| JSXNode
-		| ((
-				variable: string | LiquidObject,
-				array?: string | { toString(): string } | LiquidArray<LiquidObject>,
-		  ) => JSXNode);
-}): JSXNode {
+	range?: string;
+	children?: JSXNode | ((variable: string, array: string) => JSXNode);
+	cols?: number;
+	limit?: number;
+	offset?: number;
+}) {
 	const normalizedChildren = normalizeChildren(props.children);
 	let array: string;
 	let variableName: string;
@@ -279,16 +259,10 @@ export function TableRow(props: {
 				: props.children;
 	}
 
-	// handle custom
-	else {
-		array = String(props.array);
-		variableName = props.variable || "row";
-	}
-
 	const Component = new LiquidComponent(
 		LiquidTag.TableRow,
 		() => [
-			`${variableName} in ${array}`,
+			`${variableName} in ${props.array}`,
 			["cols", props.cols],
 			["limit", props.limit],
 			["offset", props.offset],
