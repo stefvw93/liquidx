@@ -1,5 +1,6 @@
 import { LiquidComponent } from "@/tags/_tag";
 import { FRAGMENT, type JSXNode } from "~/jsx-runtime";
+import { Context } from "./context";
 
 // biome-ignore lint/suspicious/noControlCharactersInRegex: needed for liquid
 const ILLEGAL_ATTR_PATTERN = /[ "'>/= \u0000-\u001F\uFDD0-\uFDEF\uFFFF\uFFFE]/;
@@ -49,7 +50,9 @@ export function renderToString(node: JSXNode): string {
 	}
 
 	function renderNodes(nodes: Iterable<JSXNode>): string {
-		return Array.from(nodes).map(renderToString).join("");
+		return Array.from(nodes)
+			.map((node) => renderToString(node))
+			.join("");
 	}
 
 	if (Symbol.iterator in node) {
@@ -99,6 +102,18 @@ export function renderToString(node: JSXNode): string {
 
 		if (node.type instanceof LiquidComponent) {
 			return `${node.type.open(node.props)}${renderToString(node.type(node.props))}${node.type.close()}`;
+		}
+
+		if (Context.isProvider(node.type)) {
+			if (!("value" in node.props)) {
+				throw new Error("Provide must have a value");
+			}
+
+			const nodeContext = node.type.getContext();
+			Context.live.set(nodeContext, node.props.value);
+			const output = renderToString(node.type(node.props));
+			Context.live.delete(nodeContext);
+			return output;
 		}
 
 		if (node.type instanceof Function) {

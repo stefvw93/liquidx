@@ -1,13 +1,3 @@
-import type { Address } from "@/objects/address";
-import type { AllProducts } from "@/objects/all-products";
-import type { Article } from "@/objects/article";
-import type { Collections } from "@/objects/collections";
-import type { Comment } from "@/objects/comment";
-import type { Order } from "@/objects/order";
-import type { Pages } from "@/objects/pages";
-import type { Product } from "@/objects/product";
-import type { Search } from "@/objects/search";
-import type { Variant } from "@/objects/variant";
 import { type Dictionary, LiquidArray } from "@/util/dictionary";
 import type { LiquidObject, LiquidObjectPaginateTypeId } from "@/util/object";
 import { normalizeChildren } from "@/util/renderer";
