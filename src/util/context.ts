@@ -1,6 +1,6 @@
 import type { JSXNode, PropsWithChildren } from "~/jsx-runtime";
 
-export const provideId = Symbol("provide");
+export const provideId = Symbol("liquidx/provide");
 
 export type Provider<T> = ((
 	props: PropsWithChildren<{ value: T }>,

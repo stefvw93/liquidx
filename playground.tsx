@@ -1,14 +1,29 @@
-import { collection } from "@/objects/collection";
-import { LiquidComponent, LiquidTag } from "@/tags/_tag";
-import { For } from "@/tags/iteration";
-import { Echo } from "@/tags/syntax";
+import { Echo, Liquid } from "@/tags/syntax";
+import { Context } from "@/util/context";
 import { renderToString } from "@/util/renderer";
-import type { PropsWithChildren } from "~/jsx-runtime";
 
-const Tag = new LiquidComponent(
-	LiquidTag.For,
-	(props) => [`${props.item} in items`, ["limit", "10"], "reversed"],
-	(props: PropsWithChildren<{ item: string }>) => props.children,
-);
+const myContext = new Context(() => "provided-value");
 
-console.log(renderToString(<Tag item="item">expression</Tag>));
+const MyInjector = (props: object) => {
+	const injected = Context.inject(myContext);
+	return <div>{`injected: ${injected}`}</div>;
+};
+
+const ShouldThrow = (props: object) => {
+	const injected = Context.inject(myContext);
+	return <div>{`injected: ${injected}`}</div>;
+};
+
+const MyComponent = () => {
+	return (
+		<>
+			<Echo>expression</Echo>
+			{"\n"}
+			<Liquid>
+				<Echo>expression</Echo>
+			</Liquid>
+		</>
+	);
+};
+
+console.log(renderToString(<MyComponent />));

@@ -1,3 +1,5 @@
+import { Context } from "@/util/context";
+import { renderToString } from "@/util/renderer";
 import type { PropsWithChildren } from "~/jsx-runtime";
 import { LiquidComponent, LiquidTag } from "./_tag";
 
@@ -18,16 +20,43 @@ export const Doc = new LiquidComponent(LiquidTag.Doc, () => []);
  * Using the echo tag is the same as wrapping an expression in curly brackets ({{ and }}). However, unlike the curly bracket method, you can use the echo tag inside [liquid tags](https://shopify.dev/docs/api/liquid/tags/liquid).
  */
 export function Echo({ children }: PropsWithChildren) {
+	let isLiquidContext: boolean;
+
+	try {
+		Context.inject(liquidContext);
+		isLiquidContext = true;
+	} catch {
+		isLiquidContext = false;
+	}
+
 	const normalizedChildren = children ? [children].flat() : [];
 	const renderedChildren = normalizedChildren.join("");
-	return <Liquid>{`echo ${renderedChildren}`}</Liquid>;
+
+	return isLiquidContext
+		? `echo ${renderedChildren}`
+		: `{{ ${renderedChildren} }}`;
 }
 
 /**
  * Allows you to have a block of Liquid without delimeters on each tag.
  * Because the tags don't have delimeters, each tag needs to be on its own line.
  */
-export const Liquid = new LiquidComponent(LiquidTag.Liquid, () => []);
+export function Liquid({ children }: PropsWithChildren) {
+	const Component = new LiquidComponent(
+		LiquidTag.Liquid,
+		() => [renderToString(children)],
+		() => null,
+	);
+
+	return (
+		<liquidContext.Provide value={liquidContextId}>
+			<Component />
+		</liquidContext.Provide>
+	);
+}
+
+const liquidContextId = Symbol("liquidx/liquidContext");
+const liquidContext = new Context(() => liquidContextId);
 
 /**
  * Outputs any Liquid code as text instead of rendering it.
